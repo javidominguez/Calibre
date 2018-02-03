@@ -15,7 +15,9 @@ import textInfos
 from tones import beep
 import os
 import winUser
-from speech import speakObject
+from speech import speakObject, pauseSpeech
+from keyboardHandler import KeyboardInputGesture
+from time import sleep
 
 addonHandler.initTranslation()
 
@@ -26,23 +28,17 @@ class AppModule(appModuleHandler.AppModule):
 
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
-		self.muteHeaders = ()
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			if obj.location[2] == 0:
 				obj.description = _("(hidden)")
 			clsList.insert(0, EnhancedHeader)
-		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX:
-			obj.textInfo = obj.makeTextInfo(textInfos.POSITION_ALL)
+		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
+			obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
+			obj.lastCaret = obj.TextInfo ._getCaretOffset()
 			clsList.insert(0, ComboBox)
 		if obj.role == controlTypes.ROLE_TABLECELL:
-			if not self.muteHeaders:
-				fg = api.getForegroundObject()
-				titleHeader =  fg.getChild(2).getChild(2).getChild(1).getChild(0).getChild(0).getChild(1).getChild(1).getChild(0).getChild(2)
-				authorHeader = titleHeader.next
-				self.muteHeaders = (titleHeader.name, authorHeader.name)
-			obj.muteHeaders = self.muteHeaders
 			clsList.insert(0, TableCell)
 
 	def tbContextMenu(self, obj, func):
@@ -51,7 +47,6 @@ class AppModule(appModuleHandler.AppModule):
 		x = obj.location[0]+2
 		y = obj.location[1]+2
 		winUser.setCursorPos(x, y)
-		# x, y = winUser.getCursorPos()
 		if api.getDesktopObject().objectFromPoint(x,y) == obj:
 			scriptHandler.executeScript(func, None)
 		else:
@@ -125,22 +120,6 @@ class AppModule(appModuleHandler.AppModule):
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_navegateHeaders.__doc__ = _("bring the objects navigator to first item on table header")
 
-	def script_searchBookInTheWeb(self, gesture):
-		obj = api.getFocusObject()
-		if obj.role == controlTypes.ROLE_TABLECELL: # and (obj.simplePrevious.role == controlTypes.ROLE_TABLEROWHEADER or obj.simplePrevious.simplePrevious.role == controlTypes.ROLE_TABLEROWHEADER):
-			limit = 50
-			while limit and obj and obj.role != controlTypes.ROLE_TABLEROWHEADER:
-				obj = obj.previous
-				limit = limit - 1
-			if obj:
-				if obj.role == controlTypes.ROLE_TABLEROWHEADER:
-					url = u'https://www.google.es/search?tbm=bks&q=intitle:%s+inauthor:%s' % (obj.next.next.name, obj.next.next.next.name)
-					os.startfile(url)
-					return
-		beep(120, 80)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
-
 	__gestures = {
 	"kb:F8": "libraryMenu",
 	"kb:F7": "addBooksMenu",
@@ -149,8 +128,7 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:F9": "navegateToolsBar",
 	"kb:F10": "navegateToolsBar2",
 	"kb:NVDA+H": "navegateHeaders",
-	"kb:NVDA+End": "nBooks", 
-	"kb:F12": "searchBookInTheWeb"
+	"kb:NVDA+End": "nBooks"
 	}
 
 class EnhancedHeader(IAccessible):
@@ -161,13 +139,13 @@ class ComboBox(InaccessibleComboBox):
 	def event_caret (self):
 		try:
 			savedSearches = [o.name for o in self.previous.children]
-			if self.value not in savedSearches:
-				caret = self.textInfo._getCaretOffset()
-				if caret == len(self.textInfo.text):
+			if self.TextInfo.text not in savedSearches:
+				caret = self.TextInfo ._getCaretOffset()
+				if caret == len(self.TextInfo .text):
 					caret = caret-1
 				if caret < 0:
 					caret = 0
-				ui.message(self.textInfo.text[caret])
+				ui.message(self.TextInfo .text[caret])
 		except IndexError:
 			pass
 
@@ -180,7 +158,8 @@ class TableCell(IAccessible):
 		self.states.remove(controlTypes.STATE_SELECTED)
 		if not self.name:
 			self.name = " "
-		if self.columnHeaderText not in self.muteHeaders:
+		# TRANSLATORS: Name of the columns Title and Author as shown in the interface of Calibre 
+		if self.columnHeaderText.lower() != _("Title").lower() and self.columnHeaderText.lower()  != _("Author(s)").lower():
 			ui.message(self.columnHeaderText)
 		speakObject(self, controlTypes.REASON_CARET)
 
@@ -201,6 +180,52 @@ class TableCell(IAccessible):
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
 
+	def script_bookInfo(self, gesture):
+		clipboard = api.getClipData()
+		gesture.send()
+		KeyboardInputGesture.fromName("tab").send()
+		KeyboardInputGesture.fromName("applications").send()
+		KeyboardInputGesture.fromName("t").send()
+		KeyboardInputGesture.fromName("escape").send()
+		sleep(0.25)
+		pauseSpeech(True)
+		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre 
+		title = self.getDataFromColumn(_("Title"))
+		if scriptHandler.getLastScriptRepeatCount() == 1:
+			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
+		else:
+			ui.message("%s\n%s" % (title, api.getClipData()))
+		api.copyToClip(clipboard)
+
+	def script_searchBookInTheWeb(self, gesture):
+		# TRANSLATORS: Put the domain corresponding to your country
+		domain = _("google.com")
+		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
+		title = self.getDataFromColumn(_("Title"))
+		# TRANSLATORS: Name of the column Author as shown in the interface of Calibre 
+		author = self.getDataFromColumn(_("Author(s)"))
+		url = u'https://www.%s/search?tbm=bks&q=intitle:%s+inauthor:%s' % (domain, title, author)
+		os.startfile(url)
+	#TRANSLATORS: message shown in Input gestures dialog for this script
+	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
+
+	def getDataFromColumn(self, columnName):
+		if self.columnHeaderText.lower() == columnName.lower():
+			return self.name
+		obj = self.previous
+		while obj.role == controlTypes.ROLE_TABLECELL:
+			if obj.columnHeaderText.lower() == columnName.lower():
+				return obj.name
+			obj = obj.previous
+		obj = self.next
+		while obj.role == controlTypes.ROLE_TABLECELL:
+			if obj.columnHeaderText.lower() == columnName.lower():
+				return obj.name
+			obj = obj.next
+		return ""
+
 	__gestures = {
-	"kb:NVDA+Control+H": "headerOptions"
+	"kb:NVDA+Control+H": "headerOptions",
+	"kb:I": "bookInfo",
+	"kb:F12": "searchBookInTheWeb"
 	}

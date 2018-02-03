@@ -11,7 +11,7 @@ An NVDA add-on with some accessibility enhancements for the interface of Calibre
 * NVDA+End says the total of books in the current library view and the number of books selected
 * NVDA+H bring the objects navigator to first item on table header
 * NVDA+Control+H open the context menu for settings of the current column
-
+* I in library view reads the book information. Twice shows the information in a browseable message. 
+ 
 Keystrokes can be customized in  Preferences  of NVDA > Input gestures when calibre are open.
 
-Note: It has been presumed that title and author are the first two columns. If you move from that position it is possible that some functions may not work correctly.
