@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Calibre NVDA add-on\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 23:32+0100\n"
-"PO-Revision-Date: 2018-02-01 23:32+0100\n"
+"POT-Creation-Date: 2018-02-04 19:44+0100\n"
+"PO-Revision-Date: 2018-02-04 19:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -18,23 +18,23 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: calibre.py:27 calibre.py:183
+#: calibre.py:27 calibre.py:177
 msgid "Calibre"
 msgstr "Calibre"
 
-#: calibre.py:36
+#: calibre.py:35
 msgid "(hidden)"
 msgstr "(oculto)"
 
-#: calibre.py:52 calibre.py:92 calibre.py:102
-msgid "Tools bar"
-msgstr "Barra de herramientas"
-
-#: calibre.py:61
+#: calibre.py:51 calibre.py:58 calibre.py:70 calibre.py:82 calibre.py:94
 msgid "Not found"
 msgstr "No encontrado"
 
-#: calibre.py:68
+#: calibre.py:60 calibre.py:72 calibre.py:114
+msgid "Tools bar"
+msgstr "Barra de herramientas"
+
+#: calibre.py:63
 msgid "open the context menu for selecting   and maintenance library"
 msgstr "abre el menú contextual de selección y mantenimiento de la biblioteca "
 
@@ -42,27 +42,34 @@ msgstr "abre el menú contextual de selección y mantenimiento de la biblioteca 
 msgid "open the context menu for adding books"
 msgstr "abre el menú contextual para añadir libros "
 
-#: calibre.py:82
+#: calibre.py:84 calibre.py:96 calibre.py:107
+msgid "Search bar"
+msgstr "Barra de búsqueda"
+
+#: calibre.py:87
 msgid "open the context menu for saved searches"
 msgstr "abre el menú contextual de búsquedas guardadas "
 
-#: calibre.py:89
+#: calibre.py:99
 msgid "open the context menu for virtual libraries"
 msgstr "abre el menú contextual de bibliotecas virtuales "
 
-#: calibre.py:99
+#: calibre.py:105
+msgid "The search bar is not visible."
+msgstr "La barra de búsqueda no es visible."
+
+#: calibre.py:111
+msgid "bring the objects navigator to first item on search bar"
+msgstr ""
+"lleva el navegador de objetos al  primer elemento de la barra de búsqueda"
+
+#: calibre.py:121
 msgid "bring the objects navigator to first item on toolbar"
 msgstr ""
 "lleva el navegador de objetos al  primer elemento de la barra de "
 "herramientas "
 
-#: calibre.py:109
-msgid "bring the objects navigator to first item on extended toolbar"
-msgstr ""
-"lleva el navegador de objetos al  primer elemento de la barra de "
-"herramientas ampliada"
-
-#: calibre.py:120
+#: calibre.py:134
 msgid ""
 "says the total of books in the current library view and the number of books "
 "selected"
@@ -70,35 +77,44 @@ msgstr ""
 "dice el total de libros en la vista de biblioteca actual y la cantidad de "
 "libros seleccionados"
 
-#: calibre.py:129
+#: calibre.py:143
 msgid "bring the objects navigator to first item on table header"
 msgstr ""
 "lleva el navegador de objetos al primer encabezado de columna en la tabla de "
 "libros"
 
-#: calibre.py:145
-msgid "search the current book in Google"
-msgstr "busca el libro seleccionado en Google"
-
-#: calibre.py:189 calibre.py:220
+#: calibre.py:184 calibre.py:218 calibre.py:229
 msgid "Title"
 msgstr "Título"
 
-#: calibre.py:190
+#: calibre.py:184 calibre.py:231
 msgid "Author(s)"
 msgstr "Autor(es)"
 
-#: calibre.py:203
+#: calibre.py:197
 msgid "Out of screen, can't click"
 msgstr "Fuera de pantalla, no se puede hacer clic"
 
-#: calibre.py:209
+#: calibre.py:203
 msgid "open the context menu for settings of the current column"
 msgstr "abre el menú contextual de configuración de la columna actual "
 
-#: calibre.py:221
+#: calibre.py:220
 msgid "Book info"
 msgstr "Información del libro"
+
+#: calibre.py:227
+msgid "google.com"
+msgstr "google.es"
+
+#: calibre.py:235
+msgid "search the current book in Google"
+msgstr "busca el libro seleccionado en Google"
+
+#~ msgid "bring the objects navigator to first item on extended toolbar"
+#~ msgstr ""
+#~ "lleva el navegador de objetos al  primer elemento de la barra de "
+#~ "herramientas ampliada"
 
 #~ msgid "Author (s)"
 #~ msgstr "Autor (es)"

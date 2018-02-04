@@ -36,13 +36,11 @@ class AppModule(appModuleHandler.AppModule):
 			clsList.insert(0, EnhancedHeader)
 		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
 			obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
-			obj.lastCaret = obj.TextInfo ._getCaretOffset()
 			clsList.insert(0, ComboBox)
 		if obj.role == controlTypes.ROLE_TABLECELL:
 			clsList.insert(0, TableCell)
 
 	def tbContextMenu(self, obj, func):
-		ui.message("%s, %s" % (_("Tools bar"), obj.name))
 		api.setNavigatorObject(obj)
 		x = obj.location[0]+2
 		y = obj.location[1]+2
@@ -54,43 +52,65 @@ class AppModule(appModuleHandler.AppModule):
 
 	def script_libraryMenu(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(3).getChild(13)
-		self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
+		try:
+			obj = fg.getChild(3).getChild(13)
+		except AttributeError:
+			ui.message(_("Not found"))
+		else:
+			ui.message("%s, %s" % (_("Tools bar"), obj.name))
+			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_libraryMenu.__doc__ = _("open the context menu for selecting   and maintenance library")
 
 	def script_addBooksMenu(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(3).getChild(1)
-		self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
+		try:
+			obj = fg.getChild(3).getChild(1)
+		except AttributeError:
+			ui.message(_("Not found"))
+		else:
+			ui.message("%s, %s" % (_("Tools bar"), obj.name))
+			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_addBooksMenu.__doc__ = _("open the context menu for adding books")
 
 	def script_searchMenu(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(2).getChild(0).getChild(11)
-		self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
+		try:
+			obj = fg.getChild(2).getChild(0).getChild(11)
+		except AttributeError:
+			ui.message(_("Not found"))
+		else:
+			ui.message("%s, %s" % (_("Search bar"), obj.name))
+			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_searchMenu.__doc__ = _("open the context menu for saved searches")
 
 	def script_virtualLibrary(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(2).getChild(0).getChild(0)
-		self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
+		try:
+			obj = fg.getChild(2).getChild(0).getChild(0)
+		except AttributeError:
+			ui.message(_("Not found"))
+		else:
+			ui.message("%s, %s" % (_("Search bar"), obj.name))
+			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_virtualLibrary.__doc__ = _("open the context menu for virtual libraries")
 
-	def script_navegateToolsBar(self, gesture):
-		ui.message(_("Tools bar"))
+	def script_navegateSearchBar(self, gesture):
 		fg = api.getForegroundObject()
 		obj = fg.getChild(2).getChild(0).getChild(0)
-		ui.message(obj.name)
-		api.setNavigatorObject(obj)
-		scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
+		if controlTypes.STATE_INVISIBLE in obj.states:
+			ui.message(_("The search bar is not visible."))
+		else:
+			ui.message("%s, %s" % (_("Search bar"), obj.name))
+			api.setNavigatorObject(obj)
+			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateToolsBar.__doc__ = _("bring the objects navigator to first item on toolbar")
+	script_navegateSearchBar.__doc__ = _("bring the objects navigator to first item on search bar")
 
-	def script_navegateToolsBar2(self, gesture):
+	def script_navegateToolsBar(self, gesture):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
 		obj = fg.getChild(3).getChild(0)
@@ -98,16 +118,18 @@ class AppModule(appModuleHandler.AppModule):
 		api.setNavigatorObject(obj)
 		scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateToolsBar2.__doc__ = _("bring the objects navigator to first item on extended toolbar")
+	script_navegateToolsBar.__doc__ = _("bring the objects navigator to first item on toolbar")
 
 	def script_nBooks(self, gesture):
 		fg = api.getForegroundObject()
 		try:
 			obj = fg.getChild(10).getChild(2)
-			ui.message(obj.name.split("[")[1].replace("]", ""))
+			pos = 2 if "[64bit]" in obj.name else 1
+			ui.message(obj.name.split("[")[pos].replace("]", ""))
 		except AttributeError:
 			obj = fg.getChild(9).getChild(2)
-			ui.message(obj.name.split("[")[1].replace("]", ""))
+			pos = 2 if "[64bit]" in obj.name else 1
+			ui.message(obj.name.split("[")[pos].replace("]", ""))
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_nBooks.__doc__ = _("says the total of books in the current library view and the number of books selected")
 
@@ -125,8 +147,8 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:F7": "addBooksMenu",
 	"kb:F6": "searchMenu",
 	"kb:F5": "virtualLibrary",
-	"kb:F9": "navegateToolsBar",
-	"kb:F10": "navegateToolsBar2",
+	"kb:F9": "navegateSearchBar",
+	"kb:F10": "navegateToolsBar",
 	"kb:NVDA+H": "navegateHeaders",
 	"kb:NVDA+End": "nBooks"
 	}
@@ -171,7 +193,7 @@ class TableCell(IAccessible):
 		api.setNavigatorObject(obj)
 		speakObject(obj)
 		winUser.setCursorPos(obj.location[0], obj.location[1]+5)
-		if obj.location[0] > winUser.getCursorPos()[0]:
+		if obj.location[0] > winUser.getCursorPos()[0] or controlTypes.STATE_INVISIBLE in obj.states:
 			ui.message(_("Out of screen, can't click"))
 			beep(300, 90)
 		else:
@@ -181,6 +203,9 @@ class TableCell(IAccessible):
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
 
 	def script_bookInfo(self, gesture):
+		if api.getForegroundObject().role == controlTypes.ROLE_DIALOG:
+			gesture.send()
+			return
 		clipboard = api.getClipData()
 		gesture.send()
 		KeyboardInputGesture.fromName("tab").send()
