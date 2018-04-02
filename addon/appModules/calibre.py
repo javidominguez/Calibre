@@ -39,6 +39,11 @@ class AppModule(appModuleHandler.AppModule):
 			clsList.insert(0, ComboBox)
 		if obj.role == controlTypes.ROLE_TABLECELL:
 			clsList.insert(0, TableCell)
+		try:
+			if obj.role == controlTypes.ROLE_PANE and obj.IAccessibleRole == controlTypes.ROLE_MENUBAR and obj.parent.IAccessibleRole == 1050:
+				clsList.insert(0, preferencesPane)
+		except AttributeError:
+			pass
 
 	def tbContextMenu(self, obj, func):
 		api.setNavigatorObject(obj)
@@ -206,21 +211,28 @@ class TableCell(IAccessible):
 		if api.getForegroundObject().role == controlTypes.ROLE_DIALOG:
 			gesture.send()
 			return
-		clipboard = api.getClipData()
-		gesture.send()
-		KeyboardInputGesture.fromName("tab").send()
-		KeyboardInputGesture.fromName("applications").send()
-		KeyboardInputGesture.fromName("t").send()
-		KeyboardInputGesture.fromName("escape").send()
-		sleep(0.25)
-		pauseSpeech(True)
 		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre 
 		title = self.getDataFromColumn(_("Title"))
+		ui.message(title)
+		try:
+			clipboard = api.getClipData()
+		except TypeError: # Specified clipboard format is not available
+			clipboard = ""
+		gesture.send()
+		KeyboardInputGesture.fromName("tab").send() # Skip to document
+		KeyboardInputGesture.fromName("applications").send() # Open context menu
+		KeyboardInputGesture.fromName("t").send() # Copy to clipboard
+		KeyboardInputGesture.fromName("escape").send() # Close dialog
+		# sleep(0.50)
 		if scriptHandler.getLastScriptRepeatCount() == 1:
 			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
 		else:
-			ui.message("%s\n%s" % (title, api.getClipData()))
-		api.copyToClip(clipboard)
+			sleep(0.50)
+			ui.message(api.getClipData())
+		if not api.copyToClip(clipboard):
+			api.win32clipboard.OpenClipboard()
+			api.win32clipboard.EmptyClipboard()
+			api.win32clipboard.CloseClipboard()
 
 	def script_searchBookInTheWeb(self, gesture):
 		# TRANSLATORS: Put the domain corresponding to your country
@@ -253,4 +265,102 @@ class TableCell(IAccessible):
 	"kb:NVDA+Control+H": "headerOptions",
 	"kb:I": "bookInfo",
 	"kb:F12": "searchBookInTheWeb"
+	}
+
+class preferencesPane(IAccessible):
+	tabItems = []
+	focusedWidget = None
+
+	def __updateTab(self, index):
+		if self.focusedWidget:
+			return
+		fg = api.getForegroundObject()
+		max = len(self.tabItems)-1
+		index = 0 if index > max else max if index < 0 else index
+		setattr(fg, "tabIndex", index)
+		self.name = self.tabItems[fg.tabIndex].name
+		speakObject(self)
+
+	def event_gainFocus(self):
+		try:
+			self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.ROLE_HEADING1 and i.next.IAccessibleRole == controlTypes.ROLE_TAB, self.recursiveDescendants)
+		except AttributeError:
+			pass
+		if self.tabItems:
+			self.role = controlTypes.ROLE_TAB
+			fg = api.getForegroundObject()
+			if not hasattr(fg, "tabIndex"):
+				setattr(fg, "tabIndex", 0)
+			self.__updateTab(fg.tabIndex)
+		else:
+			try:
+				if self.simpleFirstChild.IAccessibleRole == controlTypes.ROLE_HEADING1:
+					self.name = self.simpleFirstChild.name
+			except AttributeError:
+				Pass
+			speakObject(self)
+
+	def __skipToTab(self, skip):
+		if not self.tabItems:
+			gesture.send()
+			return
+		fg = api.getForegroundObject()
+		self.__updateTab(fg.tabIndex+skip)
+
+	def script_nextTab(self, gesture):
+		self.__skipToTab(+1)
+
+	def script_previousTab(self, gesture):
+		self.__skipToTab(-1)
+
+	def script_nextTab_(self, gesture):
+		self.focusedWidget = None
+		self.__skipToTab(+1)
+
+	def script_previousTab_(self, gesture):
+		self.focusedWidget = None
+		self.__skipToTab(-1)
+
+	def script_nextWidget(self, gesture):
+		if not self.tabItems:
+			gesture.send()
+			return
+		fg = api.getForegroundObject()
+		if not self.focusedWidget:
+			self.focusedWidget = self.tabItems[fg.tabIndex].next.simpleFirstChild
+		else:
+			self.focusedWidget = self.focusedWidget.simpleNext
+		if self.focusedWidget:
+			api.setNavigatorObject(self.focusedWidget)
+			speakObject(self.focusedWidget)
+		else:
+			gesture.send()
+
+	def script_previousWidget(self, gesture):
+		if not self.focusedWidget:
+			gesture.send()
+			return
+		self.focusedWidget = self.focusedWidget.simplePrevious
+		if self.focusedWidget:
+			api.setNavigatorObject(self.focusedWidget)
+			speakObject(self.focusedWidget)
+		else:
+			api.setNavigatorObject(self)
+			speakObject(self)
+
+	def script_doAction(self, gesture):
+		if self.focusedWidget:
+			self.focusedWidget.doAction()
+
+	__gestures = {
+	"kb:rightArrow": "nextTab",
+	"kb:leftArrow": "previousTab",
+	"kb:Tab": "nextWidget",
+	"kb:Shift+Tab": "previousWidget",
+	"kb:Control+Tab": "nextTab_",
+	"kb:Shift+Control+Tab": "previousTab_",
+	"kb:downArrow": "nextWidget",
+	"kb:upArrow": "previousWidget",
+	"kb:Enter": "doAction",
+	"kb:Space": "doAction"
 	}
