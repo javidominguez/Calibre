@@ -18,6 +18,7 @@ import winUser
 from speech import speakObject, pauseSpeech
 from keyboardHandler import KeyboardInputGesture
 from time import sleep
+import re
 
 addonHandler.initTranslation()
 
@@ -128,13 +129,21 @@ class AppModule(appModuleHandler.AppModule):
 	def script_nBooks(self, gesture):
 		fg = api.getForegroundObject()
 		try:
-			obj = fg.getChild(10).getChild(2)
-			pos = 2 if "[64bit]" in obj.name else 1
-			ui.message(obj.name.split("[")[pos].replace("]", ""))
+			statusBar = filter(lambda o: o.role == controlTypes.ROLE_STATUSBAR, fg.children)[0]
+		except IndexError:
+			raise Exception("Filter has failed; statusBar not found")
+		obj = statusBar.firstChild
+		while obj:
+			try:
+				if re.match(".*[Cc]alibre.*Kovid\sGoyal.*\[", obj.name):
+					break
+			except TypeError:
+				pass
+			obj = obj.next
+		try:
+			ui.message(re.search("\[[^\[\]]*,.*\]", obj.name).group())
 		except AttributeError:
-			obj = fg.getChild(9).getChild(2)
-			pos = 2 if "[64bit]" in obj.name else 1
-			ui.message(obj.name.split("[")[pos].replace("]", ""))
+			raise Exception("The search expression is not found in the status bar")
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_nBooks.__doc__ = _("says the total of books in the current library view and the number of books selected")
 
