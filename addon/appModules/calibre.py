@@ -47,6 +47,14 @@ class AppModule(appModuleHandler.AppModule):
 		except AttributeError:
 			pass
 
+	def event_gainFocus(self, obj, nextHandler):
+		try:
+			if obj.parent.firstChild == api.getForegroundObject().getChild(2).getChild(0).getChild(0) and obj.simpleNext.role == controlTypes.ROLE_BUTTON:
+				obj.name = obj.simpleNext.name
+		except:
+			pass
+		nextHandler()
+
 	def event_focusEntered(self, obj, nextHandler):
 		if obj.role != controlTypes.ROLE_SPLITBUTTON:
 			nextHandler()
@@ -222,7 +230,7 @@ class TableCell(IAccessible):
 	scriptCategory = _("Calibre")
 
 	def event_gainFocus(self):
-		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) >= 0:
+		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
 			try:
 				self.states.remove(controlTypes.STATE_SELECTED)
 			except KeyError:
