@@ -29,6 +29,7 @@ class AppModule(appModuleHandler.AppModule):
 
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
+		self.lastBooksCount = []
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
@@ -45,6 +46,33 @@ class AppModule(appModuleHandler.AppModule):
 				clsList.insert(0, preferencesPane)
 		except AttributeError:
 			pass
+
+	def event_focusEntered(self, obj, nextHandler):
+		if obj.role != controlTypes.ROLE_SPLITBUTTON:
+			nextHandler()
+
+	def event_foreground(self, obj, nextHandler):
+		try:
+			self.lastBooksCount = self._getBooksCount().split(",")
+		except:
+			pass
+		nextHandler()
+
+	def event_nameChange(self, obj, nextHandler):
+		if obj.role == controlTypes.ROLE_STATICTEXT and obj.parent.role == controlTypes.ROLE_STATUSBAR:
+			try:
+				booksCount = self._getBooksCount().split(",")
+			except:
+				pass
+			else:
+				if len(booksCount) == len(self.lastBooksCount):
+					for i in range(0, len(booksCount)):
+						if booksCount[i] != self.lastBooksCount[i]:
+							ui.message(booksCount[i])
+				else:
+					ui.message(",".join(booksCount))
+			self.lastBooksCount = booksCount
+		nextHandler()
 
 	def tbContextMenu(self, obj, func):
 		api.setNavigatorObject(obj)
@@ -126,7 +154,12 @@ class AppModule(appModuleHandler.AppModule):
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_navegateToolsBar.__doc__ = _("bring the objects navigator to first item on toolbar")
 
-	def script_nBooks(self, gesture):
+	def script_booksCount(self, gesture):
+		ui.message(self._getBooksCount())
+	#TRANSLATORS: message shown in Input gestures dialog for this script
+	script_booksCount.__doc__ = _("says the total of books in the current library view and the number of books selected")
+
+	def _getBooksCount(self):
 		fg = api.getForegroundObject()
 		try:
 			statusBar = filter(lambda o: o.role == controlTypes.ROLE_STATUSBAR, fg.children)[0]
@@ -141,11 +174,9 @@ class AppModule(appModuleHandler.AppModule):
 				pass
 			obj = obj.next
 		try:
-			ui.message(re.search("\[[^\[\]]*,.*\]", obj.name).group())
+			return re.search("\[[^\[\]]*[0,].*\]", obj.name).group()[1:-1]
 		except AttributeError:
 			raise Exception("The search expression is not found in the status bar")
-	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_nBooks.__doc__ = _("says the total of books in the current library view and the number of books selected")
 
 	def script_navegateHeaders(self, gesture):
 		fg = api.getForegroundObject()
@@ -164,7 +195,7 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:F9": "navegateSearchBar",
 	"kb:F10": "navegateToolsBar",
 	"kb:NVDA+H": "navegateHeaders",
-	"kb:NVDA+End": "nBooks"
+	"kb:NVDA+End": "booksCount"
 	}
 
 class EnhancedHeader(IAccessible):
@@ -191,7 +222,11 @@ class TableCell(IAccessible):
 	scriptCategory = _("Calibre")
 
 	def event_gainFocus(self):
-		self.states.remove(controlTypes.STATE_SELECTED)
+		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) >= 0:
+			try:
+				self.states.remove(controlTypes.STATE_SELECTED)
+			except KeyError:
+				pass
 		if not self.name:
 			self.name = " "
 		# TRANSLATORS: Name of the columns Title and Author as shown in the interface of Calibre 
