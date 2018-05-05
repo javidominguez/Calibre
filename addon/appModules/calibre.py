@@ -46,8 +46,16 @@ class AppModule(appModuleHandler.AppModule):
 				clsList.insert(0, preferencesPane)
 		except AttributeError:
 			pass
+		if obj.role == controlTypes.ROLE_TOOLBAR and not obj.isFocusable:
+			clsList.insert(0, UnfocusableToolBar)
 
 	def event_gainFocus(self, obj, nextHandler):
+		# Removes the HTML tags that appear in the name and description of some objects
+		if obj.name:
+			while re.search("</?\S+>", obj.name): obj.name = obj.name.replace(re.search("</?\S+>", obj.name).group(), "")
+		if obj.description:
+			while re.search("</?\S+>", obj.description): obj.description = obj.description.replace(re.search("</?\S+>", obj.description).group(), "")
+		# Label correctly the search box
 		try:
 			if obj.parent.firstChild == api.getForegroundObject().getChild(2).getChild(0).getChild(0) and obj.simpleNext.role == controlTypes.ROLE_BUTTON:
 				obj.name = obj.simpleNext.name
@@ -152,15 +160,17 @@ class AppModule(appModuleHandler.AppModule):
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_navegateSearchBar.__doc__ = _("bring the objects navigator to first item on search bar")
 
-	def script_navegateToolsBar(self, gesture):
+	def script_navegateToolBar(self, gesture):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
-		obj = fg.getChild(3).getChild(0)
-		speakObject(obj)
-		api.setNavigatorObject(obj)
-		scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
+		try:
+			toolBar = filter(lambda o: o.role == 35, fg.children)[0]
+			toolBar.show()
+		except:
+			ui.message(_("Not found"))
+			return
 	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateToolsBar.__doc__ = _("bring the objects navigator to first item on toolbar")
+	script_navegateToolBar.__doc__ = _("Bring focus to toolbar")
 
 	def script_booksCount(self, gesture):
 		ui.message(self._getBooksCount())
@@ -201,7 +211,7 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:F6": "searchMenu",
 	"kb:F5": "virtualLibrary",
 	"kb:F9": "navegateSearchBar",
-	"kb:F10": "navegateToolsBar",
+	"kb:F10": "navegateToolBar",
 	"kb:NVDA+H": "navegateHeaders",
 	"kb:NVDA+End": "booksCount"
 	}
@@ -246,10 +256,9 @@ class TableCell(IAccessible):
 		obj = self.parent.getChild(1)
 		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			obj = obj.next
-		obj.scrollIntoView()
 		api.setNavigatorObject(obj)
 		speakObject(obj)
-		winUser.setCursorPos(obj.location[0], obj.location[1]+5)
+		winUser.setCursorPos(obj.location[0], obj.location[1]+1)
 		if obj.location[0] > winUser.getCursorPos()[0] or controlTypes.STATE_INVISIBLE in obj.states:
 			ui.message(_("Out of screen, can't click"))
 			beep(300, 90)
@@ -275,7 +284,6 @@ class TableCell(IAccessible):
 		KeyboardInputGesture.fromName("applications").send() # Open context menu
 		KeyboardInputGesture.fromName("t").send() # Copy to clipboard
 		KeyboardInputGesture.fromName("escape").send() # Close dialog
-		# sleep(0.50)
 		if scriptHandler.getLastScriptRepeatCount() == 1:
 			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
 		else:
@@ -415,4 +423,81 @@ class preferencesPane(IAccessible):
 	"kb:upArrow": "previousWidget",
 	"kb:Enter": "doAction",
 	"kb:Space": "doAction"
+	}
+
+class UnfocusableToolBar(IAccessible):
+
+	returnFocusTo = None
+
+	def event_loseFocus(self):
+		ui.message (_("Leaving the toolbar"))
+
+	def script_next(self, gesture):
+		obj = api.getNavigatorObject()
+		if obj.parent == self:
+			obj = obj.next if obj.next else self.firstChild
+			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+				obj = obj.next if obj.next else self.firstChild
+			self._setFakeFocus(obj)
+		else:
+			self._setFakeFocus(self.simpleFirstChild)
+
+	def script_previous(self, gesture):
+		obj = api.getNavigatorObject()
+		if obj.parent == self:
+			obj = obj.previous if obj.previous else self.lastChild
+			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+				obj = obj.previous if obj.previous else self.lastChild
+			self._setFakeFocus(obj)
+		else:
+			self._setFakeFocus(self.simpleFirstChild)
+
+	def script_doAction(self, gesture):
+		obj = api.getNavigatorObject()
+		if obj.parent == self:
+			if obj.actionCount >0:
+				scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
+			else:
+				scriptHandler.executeScript(self.script_menu, None)
+		else:
+			beep(200, 80)
+
+	def script_menu(self, gesture):
+		obj = api.getNavigatorObject()
+		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states:
+			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
+			pauseSpeech(True)
+			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
+			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+		else:
+			beep(200,80)
+
+	def script_exit(self, gesture):
+		if self.returnFocusTo:
+			api.setFocusObject(self.returnFocusTo)
+		else:
+			api.setFocusObject(api.getForegroundObject())
+
+	def show(self):
+		self.returnFocusTo = api.getFocusObject()
+		api.setFocusObject(self)
+		self._setFakeFocus(self.simpleFirstChild)
+
+	def _setFakeFocus(self, obj):
+		api.setNavigatorObject(obj)
+		if controlTypes.STATE_INVISIBLE in obj.states:
+			obj.states.remove(controlTypes.STATE_INVISIBLE )
+		speakObject(obj)
+
+	__gestures = {
+	"kb:escape": "exit",
+	"kb:rightArrow": "next",
+	"kb:downArrow": "next",
+	"kb:Tab": "next",
+	"kb:leftArrow": "previous",
+	"kb:upArrow": "previous",
+	"kb:Shift+Tab": "previous",
+	"kb:Enter": "doAction",
+	"kb:Space": "doAction",
+	"kb:applications": "menu"
 	}
