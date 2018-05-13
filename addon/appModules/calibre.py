@@ -148,17 +148,15 @@ class AppModule(appModuleHandler.AppModule):
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_virtualLibrary.__doc__ = _("open the context menu for virtual libraries")
 
-	def script_navegateSearchBar(self, gesture):
+	def script_search(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(2).getChild(0).getChild(0)
+		obj = fg.getChild(2).getChild(0)
 		if controlTypes.STATE_INVISIBLE in obj.states:
-			ui.message(_("The search bar is not visible."))
-		else:
-			ui.message("%s, %s" % (_("Search bar"), obj.name))
-			api.setNavigatorObject(obj)
-			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateSearchBar.__doc__ = _("bring the objects navigator to first item on search bar")
+			ui.message(_(
+			#TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+			"The search bar is not visible. Press shift+alt+f to show it."))
+			return
+		gesture.send()
 
 	def script_navegateToolBar(self, gesture):
 		ui.message(_("Tools bar"))
@@ -196,23 +194,13 @@ class AppModule(appModuleHandler.AppModule):
 		except AttributeError:
 			raise Exception("The search expression is not found in the status bar")
 
-	def script_navegateHeaders(self, gesture):
-		fg = api.getForegroundObject()
-		obj = fg.getChild(2).getChild(2).getChild(1).getChild(0).getChild(0).getChild(1).getChild(1).getChild(0).getChild(2)
-		api.setNavigatorObject(obj)
-		scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
-		ui.message(obj.name)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateHeaders.__doc__ = _("bring the objects navigator to first item on table header")
-
 	__gestures = {
 	"kb:F8": "libraryMenu",
 	"kb:F7": "addBooksMenu",
 	"kb:F6": "searchMenu",
 	"kb:F5": "virtualLibrary",
-	"kb:F9": "navegateSearchBar",
+	"kb:Control+F": "search",
 	"kb:F10": "navegateToolBar",
-	"kb:NVDA+H": "navegateHeaders",
 	"kb:NVDA+End": "booksCount"
 	}
 
@@ -258,13 +246,9 @@ class TableCell(IAccessible):
 			obj = obj.next
 		api.setNavigatorObject(obj)
 		speakObject(obj)
-		winUser.setCursorPos(obj.location[0], obj.location[1]+1)
-		if obj.location[0] > winUser.getCursorPos()[0] or controlTypes.STATE_INVISIBLE in obj.states:
-			ui.message(_("Out of screen, can't click"))
-			beep(300, 90)
-		else:
-			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
-			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
+		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
+		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
 
@@ -467,8 +451,12 @@ class UnfocusableToolBar(IAccessible):
 		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states:
 			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
 			pauseSpeech(True)
-			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
-			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+			x, y = winUser.getCursorPos()
+			if x >= obj.location[0]:
+				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
+				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+			else:
+				ui.message(_("Can't click in %d, try to maximize the window" % obj.name))
 		else:
 			beep(200,80)
 
