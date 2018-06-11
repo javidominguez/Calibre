@@ -11,14 +11,17 @@ import ui
 import globalCommands
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible, InaccessibleComboBox
+from NVDAObjects.IAccessible.qt   import LayeredPane
 import textInfos
 from tones import beep
-import os
+from os import startfile
 import winUser
 from speech import speakObject, pauseSpeech
 from keyboardHandler import KeyboardInputGesture
 from time import sleep
 import re
+import versionInfo
+import config
 
 addonHandler.initTranslation()
 
@@ -34,6 +37,7 @@ class AppModule(appModuleHandler.AppModule):
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			if obj.location[2] == 0:
+				# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
 				obj.description = _("(hidden)")
 			clsList.insert(0, EnhancedHeader)
 		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
@@ -79,7 +83,7 @@ class AppModule(appModuleHandler.AppModule):
 			try:
 				booksCount = self._getBooksCount().split(",")
 			except:
-				pass
+				booksCount = self.lastBooksCount
 			else:
 				if len(booksCount) == len(self.lastBooksCount):
 					for i in range(0, len(booksCount)):
@@ -150,12 +154,16 @@ class AppModule(appModuleHandler.AppModule):
 
 	def script_search(self, gesture):
 		fg = api.getForegroundObject()
-		obj = fg.getChild(2).getChild(0)
-		if controlTypes.STATE_INVISIBLE in obj.states:
-			ui.message(_(
-			#TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
-			"The search bar is not visible. Press shift+alt+f to show it."))
-			return
+		try:
+			obj = fg.getChild(2).getChild(0)
+		except:
+			pass
+		else:
+			if controlTypes.STATE_INVISIBLE in obj.states:
+				ui.message(_(
+				#TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+				"The search bar is not visible. Press shift+alt+f to show it."))
+				return
 		gesture.send()
 
 	def script_navegateToolBar(self, gesture):
@@ -227,6 +235,29 @@ class TableCell(IAccessible):
 	#TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
 
+	def _get_nextOutsideObject(self):
+		obj = self.container.next
+		if obj:
+			while not obj.isFocusable:
+				obj = obj.next
+				if not obj: return None
+		return obj
+
+	def _get_previousOutsideObject(self):
+		obj = self.container.previous
+		if obj:
+			while not obj.isFocusable:
+				obj = obj.previous
+				if not obj: return None
+		return obj
+
+	def _get_focusableContainer(self):
+		obj = self.container
+		while not obj.isFocusable:
+			obj = obj.container
+			if not obj: return None
+		return obj
+
 	def event_gainFocus(self):
 		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
 			try:
@@ -235,17 +266,28 @@ class TableCell(IAccessible):
 				pass
 		if not self.name:
 			self.name = " "
-		# TRANSLATORS: Name of the columns Title and Author as shown in the interface of Calibre 
-		if self.columnHeaderText.lower() != _("Title").lower() and self.columnHeaderText.lower()  != _("Author(s)").lower():
-			ui.message(self.columnHeaderText)
+		if self.columnHeaderText and versionInfo.version_year*100+versionInfo.version_major < 201802:
+			if config.conf['documentFormatting']['reportTableHeaders']\
+			and self.columnHeaderText.lower() != _(
+			# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
+			"Title").lower()\
+			and self.columnHeaderText.lower()  != _(
+			# TRANSLATORS: Name of the column Author as shown in the interface of Calibre
+			"Author(s)").lower():
+				ui.message(self.columnHeaderText)
 		speakObject(self, controlTypes.REASON_CARET)
 
 	def script_headerOptions(self, gesture):
+		if self.parent.simpleParent.role == controlTypes.ROLE_DIALOG: return
 		obj = self.parent.getChild(1)
 		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			obj = obj.next
 		api.setNavigatorObject(obj)
-		speakObject(obj)
+		try:
+			speakObject(obj)
+		except AttributeError:
+			# A possible bug in NVDA 2018.2rc3 can cause this exception.
+			ui.message(obj.name)
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
@@ -286,7 +328,7 @@ class TableCell(IAccessible):
 		# TRANSLATORS: Name of the column Author as shown in the interface of Calibre 
 		author = self.getDataFromColumn(_("Author(s)"))
 		url = u'https://www.%s/search?tbm=bks&q=intitle:%s+inauthor:%s' % (domain, title, author)
-		os.startfile(url)
+		startfile(url)
 	#TRANSLATORS: message shown in Input gestures dialog for this script
 	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
 
@@ -305,13 +347,46 @@ class TableCell(IAccessible):
 			obj = obj.next
 		return ""
 
+	def script_skipNextOutside(self, gesture):
+		obj = self.nextOutsideObject
+		while obj:
+			if obj.isFocusable:
+				api.setFocusObject(obj)
+				if controlTypes.STATE_FOCUSED in obj.states: return # The object has received the focus correctly
+			obj = obj.next
+		# Has not been able to get out of the table
+		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+			# If we are in a dialogue, focus on the top panel
+			api.setNavigatorObject(self.focusableContainer)
+			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
+			pauseSpeech(True)
+			return
+		# else
+		gesture.send()
+
+	def script_skipPreviousOutside(self, gesture):
+		obj = self.previousOutsideObject
+		while obj:
+			if obj.isFocusable:
+				api.setFocusObject(obj)
+				if controlTypes.STATE_FOCUSED in obj.states: return
+			obj = obj.previous
+		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+			api.setNavigatorObject(self.focusableContainer)
+			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
+			pauseSpeech(True)
+			return
+		gesture.send()
+
 	__gestures = {
 	"kb:NVDA+Control+H": "headerOptions",
 	"kb:I": "bookInfo",
-	"kb:F12": "searchBookInTheWeb"
+	"kb:F12": "searchBookInTheWeb",
+	"kb:Control+Tab": "skipNextOutside",
+	"kb:Shift+Control+Tab": "skipPreviousOutside"
 	}
 
-class preferencesPane(IAccessible):
+class preferencesPane(LayeredPane):
 	tabItems = []
 	focusedWidget = None
 
@@ -326,10 +401,17 @@ class preferencesPane(IAccessible):
 		speakObject(self)
 
 	def event_gainFocus(self):
+		isMultitab = False
+		ch = self.simpleFirstChild
+		while ch:
+			if ch.IAccessibleRole == controlTypes.ROLE_TAB:
+				isMultitab = True
+				break
+			ch = ch.next
 		try:
-			self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.ROLE_HEADING1 and i.next.IAccessibleRole == controlTypes.ROLE_TAB, self.recursiveDescendants)
+			if isMultitab: self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.ROLE_HEADING1 and i.next.IAccessibleRole == controlTypes.ROLE_TAB, self.recursiveDescendants)
 		except AttributeError:
-			pass
+			self.tabItems = []
 		if self.tabItems:
 			self.role = controlTypes.ROLE_TAB
 			fg = api.getForegroundObject()
@@ -341,33 +423,34 @@ class preferencesPane(IAccessible):
 				if self.simpleFirstChild.IAccessibleRole == controlTypes.ROLE_HEADING1:
 					self.name = self.simpleFirstChild.name
 			except AttributeError:
-				Pass
+				pass
+			self.name = self.simpleParent.name if not self.name and self.simpleParent.role == 4 else self.name
 			speakObject(self)
 
 	def __skipToTab(self, skip):
 		if not self.tabItems:
-			gesture.send()
-			return
+			return False
 		fg = api.getForegroundObject()
 		self.__updateTab(fg.tabIndex+skip)
+		return True
 
 	def script_nextTab(self, gesture):
-		self.__skipToTab(+1)
+		if not self.__skipToTab(+1): gesture.send()
 
 	def script_previousTab(self, gesture):
-		self.__skipToTab(-1)
+		if not self.__skipToTab(-1): gesture.send()
 
 	def script_nextTab_(self, gesture):
 		self.focusedWidget = None
-		self.__skipToTab(+1)
+		if not self.__skipToTab(+1): gesture.send()
 
 	def script_previousTab_(self, gesture):
 		self.focusedWidget = None
-		self.__skipToTab(-1)
+		if not self.__skipToTab(-1): gesture.send()
 
 	def script_nextWidget(self, gesture):
 		if not self.tabItems:
-			gesture.send()
+			KeyboardInputGesture.fromName("tab").send()
 			return
 		fg = api.getForegroundObject()
 		if not self.focusedWidget:
@@ -378,11 +461,12 @@ class preferencesPane(IAccessible):
 			api.setNavigatorObject(self.focusedWidget)
 			speakObject(self.focusedWidget)
 		else:
-			gesture.send()
+			# gesture.send()
+			KeyboardInputGesture.fromName("tab").send()
 
 	def script_previousWidget(self, gesture):
 		if not self.focusedWidget:
-			gesture.send()
+			KeyboardInputGesture.fromName("shift+tab").send()
 			return
 		self.focusedWidget = self.focusedWidget.simplePrevious
 		if self.focusedWidget:
@@ -456,7 +540,7 @@ class UnfocusableToolBar(IAccessible):
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
 			else:
-				ui.message(_("Can't click in %d, try to maximize the window" % obj.name))
+				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))
 		else:
 			beep(200,80)
 

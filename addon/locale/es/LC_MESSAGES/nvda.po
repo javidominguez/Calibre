@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Calibre NVDA add-on\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-04 19:44+0100\n"
-"PO-Revision-Date: 2018-02-04 19:46+0100\n"
+"POT-Creation-Date: 2018-05-27 23:26+0200\n"
+"PO-Revision-Date: 2018-05-27 23:27+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -18,58 +18,53 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: calibre.py:27 calibre.py:177
+#: calibre.py:29 calibre.py:234
 msgid "Calibre"
 msgstr "Calibre"
 
-#: calibre.py:35
+#: calibre.py:39
 msgid "(hidden)"
 msgstr "(oculto)"
 
-#: calibre.py:51 calibre.py:58 calibre.py:70 calibre.py:82 calibre.py:94
+#: calibre.py:103 calibre.py:110 calibre.py:122 calibre.py:134 calibre.py:146
+#: calibre.py:174
 msgid "Not found"
 msgstr "No encontrado"
 
-#: calibre.py:60 calibre.py:72 calibre.py:114
+#: calibre.py:112 calibre.py:124 calibre.py:168
 msgid "Tools bar"
 msgstr "Barra de herramientas"
 
-#: calibre.py:63
+#: calibre.py:115
 msgid "open the context menu for selecting   and maintenance library"
 msgstr "abre el menú contextual de selección y mantenimiento de la biblioteca "
 
-#: calibre.py:75
+#: calibre.py:127
 msgid "open the context menu for adding books"
 msgstr "abre el menú contextual para añadir libros "
 
-#: calibre.py:84 calibre.py:96 calibre.py:107
+#: calibre.py:136 calibre.py:148
 msgid "Search bar"
 msgstr "Barra de búsqueda"
 
-#: calibre.py:87
+#: calibre.py:139
 msgid "open the context menu for saved searches"
 msgstr "abre el menú contextual de búsquedas guardadas "
 
-#: calibre.py:99
+#: calibre.py:151
 msgid "open the context menu for virtual libraries"
 msgstr "abre el menú contextual de bibliotecas virtuales "
 
-#: calibre.py:105
-msgid "The search bar is not visible."
-msgstr "La barra de búsqueda no es visible."
-
-#: calibre.py:111
-msgid "bring the objects navigator to first item on search bar"
+#: calibre.py:163
+msgid "The search bar is not visible. Press shift+alt+f to show it."
 msgstr ""
-"lleva el navegador de objetos al  primer elemento de la barra de búsqueda"
+"La barra de búsqueda no es visible. Pulsa Mayúsculas+Alt+F para mostrarla."
 
-#: calibre.py:121
-msgid "bring the objects navigator to first item on toolbar"
-msgstr ""
-"lleva el navegador de objetos al  primer elemento de la barra de "
-"herramientas "
+#: calibre.py:177
+msgid "Bring focus to toolbar"
+msgstr "Pone el foco en la barra de herramientas"
 
-#: calibre.py:134
+#: calibre.py:182
 msgid ""
 "says the total of books in the current library view and the number of books "
 "selected"
@@ -77,39 +72,58 @@ msgstr ""
 "dice el total de libros en la vista de biblioteca actual y la cantidad de "
 "libros seleccionados"
 
-#: calibre.py:143
-msgid "bring the objects navigator to first item on table header"
-msgstr ""
-"lleva el navegador de objetos al primer encabezado de columna en la tabla de "
-"libros"
-
-#: calibre.py:184 calibre.py:218 calibre.py:229
+#: calibre.py:268 calibre.py:289 calibre.py:314
 msgid "Title"
 msgstr "Título"
 
-#: calibre.py:184 calibre.py:231
+#: calibre.py:268 calibre.py:316
 msgid "Author(s)"
 msgstr "Autor(es)"
 
-#: calibre.py:197
-msgid "Out of screen, can't click"
-msgstr "Fuera de pantalla, no se puede hacer clic"
-
-#: calibre.py:203
+#: calibre.py:282
 msgid "open the context menu for settings of the current column"
 msgstr "abre el menú contextual de configuración de la columna actual "
 
-#: calibre.py:220
+#: calibre.py:301
 msgid "Book info"
 msgstr "Información del libro"
 
-#: calibre.py:227
+#: calibre.py:312
 msgid "google.com"
 msgstr "google.es"
 
-#: calibre.py:235
+#: calibre.py:320
 msgid "search the current book in Google"
 msgstr "busca el libro seleccionado en Google"
+
+#: calibre.py:488
+msgid "Leaving the toolbar"
+msgstr "Saliendo de la barra de herramientas"
+
+#: calibre.py:530
+#, python-format
+msgid "Can't click in %s, try to maximize the window"
+msgstr "No se puede hacer clic en %s, prueba a maximizar la ventana"
+
+#~ msgid "The search bar is not visible."
+#~ msgstr "La barra de búsqueda no es visible."
+
+#~ msgid "bring the objects navigator to first item on search bar"
+#~ msgstr ""
+#~ "lleva el navegador de objetos al  primer elemento de la barra de búsqueda"
+
+#~ msgid "bring the objects navigator to first item on toolbar"
+#~ msgstr ""
+#~ "lleva el navegador de objetos al  primer elemento de la barra de "
+#~ "herramientas "
+
+#~ msgid "bring the objects navigator to first item on table header"
+#~ msgstr ""
+#~ "lleva el navegador de objetos al primer encabezado de columna en la tabla "
+#~ "de libros"
+
+#~ msgid "Out of screen, can't click"
+#~ msgstr "Fuera de pantalla, no se puede hacer clic"
 
 #~ msgid "bring the objects navigator to first item on extended toolbar"
 #~ msgstr ""
