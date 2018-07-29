@@ -1,5 +1,8 @@
 ### Whats new
 
+#### 1.0 dev 6
+* Improved accessibility of combo boxes using the module qtEditableText
+
 #### 1.0 dev 5
 * Implemented virtual navigation, with arrows and keys tab, through the toolbar.
 * Improved script headerOptions: Now it is able to reach all of the columns.

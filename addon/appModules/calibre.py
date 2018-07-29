@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 # Calibre Enhancements add-on for NVDA
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
@@ -7,11 +9,16 @@ import appModuleHandler
 import addonHandler
 import api
 import controlTypes
+import config
 import ui
 import globalCommands
 import scriptHandler
-from NVDAObjects.IAccessible import IAccessible, InaccessibleComboBox
+from NVDAObjects.IAccessible import IAccessible
 from NVDAObjects.IAccessible.qt   import LayeredPane
+try:
+	from qtEditableText import QTEditableText
+except:
+	QTEditableText = IAccessible
 import textInfos
 from tones import beep
 from os import startfile
@@ -33,6 +40,7 @@ class AppModule(appModuleHandler.AppModule):
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.lastBooksCount = []
+		self.oldCaret = 0
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
@@ -42,7 +50,9 @@ class AppModule(appModuleHandler.AppModule):
 			clsList.insert(0, EnhancedHeader)
 		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
 			obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
-			clsList.insert(0, ComboBox)
+			clsList.insert(0, TextInComboBox)
+		if obj.role == controlTypes.ROLE_COMBOBOX and obj.childCount == 2:
+				clsList.insert(0, ComboBox)
 		if obj.role == controlTypes.ROLE_TABLECELL:
 			clsList.insert(0, TableCell)
 		try:
@@ -215,20 +225,33 @@ class AppModule(appModuleHandler.AppModule):
 class EnhancedHeader(IAccessible):
 	pass
 
-class ComboBox(InaccessibleComboBox):
+class TextInComboBox(IAccessible):
 
 	def event_caret (self):
+		if hasattr(self.parent, "fakeCaret"):
+			return
+		# Below There is a basic support that will be executed only if the class QTEditableText has not been correctly imported
 		try:
-			savedSearches = [o.name for o in self.previous.children]
-			if self.TextInfo.text not in savedSearches:
-				caret = self.TextInfo ._getCaretOffset()
-				if caret == len(self.TextInfo .text):
-					caret = caret-1
-				if caret < 0:
-					caret = 0
-				ui.message(self.TextInfo .text[caret])
+			caret = self.TextInfo ._getCaretOffset()
+			if caret < 0:
+				caret = 0
+			ch = self.TextInfo .text[caret]
+			if ch in '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ ':
+				ui.message(ch)
+			else:
+				start, end = (self.appModule.oldCaret, caret) if caret > self.appModule.oldCaret else (caret, self.appModule.oldCaret)
+				if end-start > 1:
+					ui.message(self.TextInfo .text[caret:].split()[0])
+				else:
+					ui.message(ch)
 		except IndexError:
 			pass
+		self.appModule.oldCaret = caret
+
+class ComboBox(QTEditableText):
+
+	def event_valueChange(self):
+		if self.value: ui.message(self.value)
 
 class TableCell(IAccessible):
 
@@ -283,11 +306,7 @@ class TableCell(IAccessible):
 		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			obj = obj.next
 		api.setNavigatorObject(obj)
-		try:
-			speakObject(obj)
-		except AttributeError:
-			# A possible bug in NVDA 2018.2rc3 can cause this exception.
-			ui.message(obj.name)
+		speakObject(obj)
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
