@@ -2,6 +2,7 @@
 
 #### 1.0 dev 6
 * Improved accessibility of combo boxes using the module qtEditableText
+* For NVDA 2018 and above, recovered the reading of table headings at classic style that can be selected in a configuration panel.
 
 #### 1.0 dev 5
 * Implemented virtual navigation, with arrows and keys tab, through the toolbar.

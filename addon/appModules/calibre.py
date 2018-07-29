@@ -9,7 +9,6 @@ import appModuleHandler
 import addonHandler
 import api
 import controlTypes
-import config
 import ui
 import globalCommands
 import scriptHandler
@@ -29,8 +28,21 @@ from time import sleep
 import re
 import versionInfo
 import config
+import wx
+from gui import guiHelper 
+from gui import settingsDialogs
+try:
+	from gui import NVDASettingsDialog
+	from gui.settingsDialogs import SettingsPanel
+except:
+	SettingsPanel = object
 
 addonHandler.initTranslation()
+
+confspec = {
+	"reportTableHeaders":"string(default=st)"
+}
+config.conf.spec['calibre']=confspec
 
 class AppModule(appModuleHandler.AppModule):
 
@@ -41,6 +53,15 @@ class AppModule(appModuleHandler.AppModule):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.lastBooksCount = []
 		self.oldCaret = 0
+		if hasattr(settingsDialogs, 'SettingsPanel'):
+			NVDASettingsDialog.categoryClasses.append(calibrePanel)
+
+	def terminate(self):
+		try:
+			if hasattr(settingsDialogs, 'SettingsPanel'):
+				NVDASettingsDialog.categoryClasses.remove(calibrePanel)
+		except:
+			pass
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
@@ -54,6 +75,7 @@ class AppModule(appModuleHandler.AppModule):
 		if obj.role == controlTypes.ROLE_COMBOBOX and obj.childCount == 2:
 				clsList.insert(0, ComboBox)
 		if obj.role == controlTypes.ROLE_TABLECELL:
+			obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 			clsList.insert(0, TableCell)
 		try:
 			if obj.role == controlTypes.ROLE_PANE and obj.IAccessibleRole == controlTypes.ROLE_MENUBAR and obj.parent.IAccessibleRole == 1050:
@@ -289,9 +311,14 @@ class TableCell(IAccessible):
 				pass
 		if not self.name:
 			self.name = " "
-		if self.columnHeaderText and versionInfo.version_year*100+versionInfo.version_major < 201802:
-			if config.conf['documentFormatting']['reportTableHeaders']\
-			and self.columnHeaderText.lower() != _(
+		self.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
+		if versionInfo.version_year*100+versionInfo.version_major >= 201802:
+			config.conf['documentFormatting']['reportTableHeaders'] = True if config.conf['calibre']['reportTableHeaders'] == "st" else False
+		if self.columnHeaderText and (
+		(versionInfo.version_year*100+versionInfo.version_major < 201802 and config.conf['documentFormatting']['reportTableHeaders']) or (
+		versionInfo.version_year*100+versionInfo.version_major >= 201802 and config.conf['calibre']['reportTableHeaders'] == "cl")):
+			# Reporting table headers at classic style (used in previous versions of NVDA or in new versions if classic mode  is selected)
+			if self.columnHeaderText.lower() != _(
 			# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
 			"Title").lower()\
 			and self.columnHeaderText.lower()  != _(
@@ -299,6 +326,9 @@ class TableCell(IAccessible):
 			"Author(s)").lower():
 				ui.message(self.columnHeaderText)
 		speakObject(self, controlTypes.REASON_CARET)
+
+	def event_loseFocus(self):
+		config.conf['documentFormatting']['reportTableHeaders'] = self.reportHeaders
 
 	def script_headerOptions(self, gesture):
 		if self.parent.simpleParent.role == controlTypes.ROLE_DIALOG: return
@@ -592,3 +622,19 @@ class UnfocusableToolBar(IAccessible):
 	"kb:Space": "doAction",
 	"kb:applications": "menu"
 	}
+
+class calibrePanel(SettingsPanel):
+
+	title=_("Calibre")
+
+	def makeSettings(self, sizer):
+		helper = guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
+		labelText = _("Report table headers")
+		self.tableHeaders = helper.addLabeledControl(labelText, wx.Choice, choices=[_("None"), _("Standar"), _("Classic")])
+		self.tableHeaders.SetSelection(("no", "st", "cl").index(config.conf["calibre"]["reportTableHeaders"]))
+
+		sizer.Add(helper.sizer, border=guiHelper.BORDER_FOR_DIALOGS, flag=wx.ALL)
+
+	def onSave(self):
+
+		config.conf["calibre"]["reportTableHeaders"] = ("no", "st", "cl")[self.tableHeaders.GetSelection()]
