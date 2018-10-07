@@ -1,5 +1,8 @@
 # Calibre
-An NVDA add-on with some accessibility enhancements for the interface of Calibre eBook Management
+* Author: Javi Dominguez
+* Download [stable version candidate](https://github.com/javidominguez/Calibre/releases/download/1.0rc2/Calibre-1.0_rc2.nvda-addon) 
+ 
+ An NVDA add-on with some accessibility enhancements for the interface of Calibre eBook Management
 
 * F5 open the context menu for virtual libraries
 * F6 open the context menu for saved searches
@@ -13,3 +16,6 @@ An NVDA add-on with some accessibility enhancements for the interface of Calibre
  
 Keystrokes can be customized in  Preferences  of NVDA > Input gestures when calibre are open.
 
+ 
+  
+  Covered by the GNU General Public License. See the [file COPYING.txt](https://github.com/javidominguez/Calibre/blob/master/COPYING.txt) for more details.

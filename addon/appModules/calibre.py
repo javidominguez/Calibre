@@ -46,7 +46,7 @@ config.conf.spec['calibre']=confspec
 
 class AppModule(appModuleHandler.AppModule):
 
-	#TRANSLATORS: category for Calibre input gestures
+	# TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
 
 	def __init__(self, *args, **kwargs):
@@ -67,6 +67,7 @@ class AppModule(appModuleHandler.AppModule):
 		if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
 			if obj.location[2] == 0:
 				# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+				# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
 				obj.description = _("(hidden)")
 			clsList.insert(0, EnhancedHeader)
 		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
@@ -134,6 +135,7 @@ class AppModule(appModuleHandler.AppModule):
 		if api.getDesktopObject().objectFromPoint(x,y) == obj:
 			scriptHandler.executeScript(func, None)
 		else:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 
 	def script_libraryMenu(self, gesture):
@@ -141,11 +143,12 @@ class AppModule(appModuleHandler.AppModule):
 		try:
 			obj = fg.getChild(3).getChild(13)
 		except AttributeError:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 		else:
 			ui.message("%s, %s" % (_("Tools bar"), obj.name))
 			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_libraryMenu.__doc__ = _("open the context menu for selecting   and maintenance library")
 
 	def script_addBooksMenu(self, gesture):
@@ -153,11 +156,12 @@ class AppModule(appModuleHandler.AppModule):
 		try:
 			obj = fg.getChild(3).getChild(1)
 		except AttributeError:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 		else:
 			ui.message("%s, %s" % (_("Tools bar"), obj.name))
 			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_addBooksMenu.__doc__ = _("open the context menu for adding books")
 
 	def script_searchMenu(self, gesture):
@@ -165,11 +169,12 @@ class AppModule(appModuleHandler.AppModule):
 		try:
 			obj = fg.getChild(2).getChild(0).getChild(11)
 		except AttributeError:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 		else:
 			ui.message("%s, %s" % (_("Search bar"), obj.name))
 			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_searchMenu.__doc__ = _("open the context menu for saved searches")
 
 	def script_virtualLibrary(self, gesture):
@@ -177,11 +182,12 @@ class AppModule(appModuleHandler.AppModule):
 		try:
 			obj = fg.getChild(2).getChild(0).getChild(0)
 		except AttributeError:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 		else:
 			ui.message("%s, %s" % (_("Search bar"), obj.name))
 			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_virtualLibrary.__doc__ = _("open the context menu for virtual libraries")
 
 	def script_search(self, gesture):
@@ -193,26 +199,27 @@ class AppModule(appModuleHandler.AppModule):
 		else:
 			if controlTypes.STATE_INVISIBLE in obj.states:
 				ui.message(_(
-				#TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+				# TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
 				"The search bar is not visible. Press shift+alt+f to show it."))
 				return
 		gesture.send()
 
-	def script_navegateToolBar(self, gesture):
+	def script_navigateToolBar(self, gesture):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
 		try:
 			toolBar = filter(lambda o: o.role == 35, fg.children)[0]
 			toolBar.show()
 		except:
+			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 			return
-	#TRANSLATORS: message shown in Input gestures dialog for this script
-	script_navegateToolBar.__doc__ = _("Bring focus to toolbar")
+	# TRANSLATORS: message shown in Input gestures dialog for this script
+	script_navigateToolBar.__doc__ = _("Bring focus to toolbar")
 
 	def script_booksCount(self, gesture):
 		ui.message(self._getBooksCount())
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_booksCount.__doc__ = _("says the total of books in the current library view and the number of books selected")
 
 	def _getBooksCount(self):
@@ -240,8 +247,8 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:F6": "searchMenu",
 	"kb:F5": "virtualLibrary",
 	"kb:Control+F": "search",
-	"kb:F10": "navegateToolBar",
-	"kb:NVDA+End": "booksCount"
+	"kb:F10": "navigateToolBar",
+	"kb:NVDA+Alt+End": "booksCount"
 	}
 
 class EnhancedHeader(IAccessible):
@@ -277,7 +284,7 @@ class ComboBox(QTEditableText):
 
 class TableCell(IAccessible):
 
-	#TRANSLATORS: category for Calibre input gestures
+	# TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
 
 	def _get_nextOutsideObject(self):
@@ -317,14 +324,14 @@ class TableCell(IAccessible):
 		if self.columnHeaderText and (
 		(versionInfo.version_year*100+versionInfo.version_major < 201802 and config.conf['documentFormatting']['reportTableHeaders']) or (
 		versionInfo.version_year*100+versionInfo.version_major >= 201802 and config.conf['calibre']['reportTableHeaders'] == "cl")):
-			# Reporting table headers at classic style (used in previous versions of NVDA or in new versions if classic mode  is selected)
+			# Reporting table headers at classic style (used in previous versions of NVDA or in new versions if read only column headers is selected in preferences)
 			if self.columnHeaderText.lower() != _(
 			# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
 			"Title").lower()\
 			and self.columnHeaderText.lower()  != _(
 			# TRANSLATORS: Name of the column Author as shown in the interface of Calibre
 			"Author(s)").lower():
-				ui.message(self.columnHeaderText)
+				self.description = self.columnHeaderText
 		speakObject(self, controlTypes.REASON_CARET)
 
 	def event_loseFocus(self):
@@ -340,7 +347,7 @@ class TableCell(IAccessible):
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
 
 	def script_bookInfo(self, gesture):
@@ -370,7 +377,7 @@ class TableCell(IAccessible):
 			api.win32clipboard.CloseClipboard()
 
 	def script_searchBookInTheWeb(self, gesture):
-		# TRANSLATORS: Put the domain corresponding to your country
+		# TRANSLATORS: Put the Google domain corresponding to your country
 		domain = _("google.com")
 		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
 		title = self.getDataFromColumn(_("Title"))
@@ -378,7 +385,7 @@ class TableCell(IAccessible):
 		author = self.getDataFromColumn(_("Author(s)"))
 		url = u'https://www.%s/search?tbm=bks&q=intitle:%s+inauthor:%s' % (domain, title, author)
 		startfile(url)
-	#TRANSLATORS: message shown in Input gestures dialog for this script
+	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
 
 	def getDataFromColumn(self, columnName):
@@ -410,7 +417,6 @@ class TableCell(IAccessible):
 			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
 			pauseSpeech(True)
 			return
-		# else
 		gesture.send()
 
 	def script_skipPreviousOutside(self, gesture):
@@ -573,7 +579,7 @@ class UnfocusableToolBar(IAccessible):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			if obj.actionCount >0:
-				scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
+				scriptHandler.executeScript(globalCommands.commands.script_review_activate, KeyboardInputGesture)
 			else:
 				scriptHandler.executeScript(self.script_menu, None)
 		else:
@@ -589,6 +595,7 @@ class UnfocusableToolBar(IAccessible):
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
 			else:
+				# TRANSLATORS: Message when it can't click in a item of the toolbar
 				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))
 		else:
 			beep(200,80)
@@ -629,8 +636,9 @@ class calibrePanel(SettingsPanel):
 
 	def makeSettings(self, sizer):
 		helper = guiHelper.BoxSizerHelper(self, orientation=wx.VERTICAL)
+		# TRANSLATORS: Preferences of table headers reading
 		labelText = _("Report table headers")
-		self.tableHeaders = helper.addLabeledControl(labelText, wx.Choice, choices=[_("None"), _("Standar"), _("Classic")])
+		self.tableHeaders = helper.addLabeledControl(labelText, wx.Choice, choices=[_("None"), _("Rows and columns"), _("Columns only")])
 		self.tableHeaders.SetSelection(("no", "st", "cl").index(config.conf["calibre"]["reportTableHeaders"]))
 
 		sizer.Add(helper.sizer, border=guiHelper.BORDER_FOR_DIALOGS, flag=wx.ALL)
