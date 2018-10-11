@@ -10,6 +10,7 @@ import addonHandler
 import api
 import controlTypes
 import ui
+import braille
 import globalCommands
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible
@@ -310,6 +311,34 @@ class TableCell(IAccessible):
 			if not obj: return None
 		return obj
 
+	def _get_columnTitles(self):
+		if hasattr(self.appModule, "columnTitles"):
+			return self.appModule.columnTitles
+		titles = []
+		obj = self.parent.firstChild
+		while obj.role != controlTypes.ROLE_TABLECOLUMNHEADER and obj.role != controlTypes.ROLE_TABLECELL:
+			obj = obj.simpleNext
+		while obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+			titles.append(obj.name)
+			obj = obj.simpleNext
+		# Stores this information in appModule to not have to search it again each time a cell is focused, which would cause a slowdown
+		setattr(self.appModule, "columnTitles", titles)
+		return titles
+
+	def _get_inTitleColumn(self):
+		try:
+			if self.columnHeaderText == self.columnTitles[1]: return True
+		except IndexError:
+			return False
+		return False
+
+	def _get_inAuthorColumn(self):
+		try:
+			if self.columnHeaderText == self.columnTitles[2]: return True
+		except IndexError:
+			return False
+		return False
+
 	def event_gainFocus(self):
 		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
 			try:
@@ -325,14 +354,10 @@ class TableCell(IAccessible):
 		(versionInfo.version_year*100+versionInfo.version_major < 201802 and config.conf['documentFormatting']['reportTableHeaders']) or (
 		versionInfo.version_year*100+versionInfo.version_major >= 201802 and config.conf['calibre']['reportTableHeaders'] == "cl")):
 			# Reporting table headers at classic style (used in previous versions of NVDA or in new versions if read only column headers is selected in preferences)
-			if self.columnHeaderText.lower() != _(
-			# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
-			"Title").lower()\
-			and self.columnHeaderText.lower()  != _(
-			# TRANSLATORS: Name of the column Author as shown in the interface of Calibre
-			"Author(s)").lower():
+			if not self.inTitleColumn and not self.inAuthorColumn:
 				self.description = self.columnHeaderText
 		speakObject(self, controlTypes.REASON_CARET)
+		braille.handler.handleGainFocus(self)
 
 	def event_loseFocus(self):
 		config.conf['documentFormatting']['reportTableHeaders'] = self.reportHeaders
@@ -354,9 +379,8 @@ class TableCell(IAccessible):
 		if api.getForegroundObject().role == controlTypes.ROLE_DIALOG:
 			gesture.send()
 			return
-		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre 
-		title = self.getDataFromColumn(_("Title"))
-		ui.message(title)
+		title = self.getDataFromColumn(1)
+		if title: ui.message(title)
 		try:
 			clipboard = api.getClipData()
 		except TypeError: # Specified clipboard format is not available
@@ -364,7 +388,8 @@ class TableCell(IAccessible):
 		gesture.send()
 		KeyboardInputGesture.fromName("tab").send() # Skip to document
 		KeyboardInputGesture.fromName("applications").send() # Open context menu
-		KeyboardInputGesture.fromName("t").send() # Copy to clipboard
+		KeyboardInputGesture.fromName("downArrow").send() # Down to first item in menu: Copy to clipboard
+		KeyboardInputGesture.fromName("Enter").send() # Activate menu item
 		KeyboardInputGesture.fromName("escape").send() # Close dialog
 		if scriptHandler.getLastScriptRepeatCount() == 1:
 			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
@@ -377,18 +402,22 @@ class TableCell(IAccessible):
 			api.win32clipboard.CloseClipboard()
 
 	def script_searchBookInTheWeb(self, gesture):
-		# TRANSLATORS: Put the Google domain corresponding to your country
-		domain = _("google.com")
-		# TRANSLATORS: Name of the column Title as shown in the interface of Calibre
-		title = self.getDataFromColumn(_("Title"))
-		# TRANSLATORS: Name of the column Author as shown in the interface of Calibre 
-		author = self.getDataFromColumn(_("Author(s)"))
+		domain = "google.com"
+		title = self.getDataFromColumn(1)
+		author = self.getDataFromColumn(2)
+		if not title or not author:
+			gesture.send()
+			return
 		url = u'https://www.%s/search?tbm=bks&q=intitle:%s+inauthor:%s' % (domain, title, author)
 		startfile(url)
 	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
 
-	def getDataFromColumn(self, columnName):
+	def getDataFromColumn(self, columnNumber):
+		try:
+			columnName = self.columnTitles[columnNumber]
+		except IndexError:
+			return ""
 		if self.columnHeaderText.lower() == columnName.lower():
 			return self.name
 		obj = self.previous
