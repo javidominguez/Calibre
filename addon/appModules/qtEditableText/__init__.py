@@ -9,7 +9,7 @@ from NVDAObjects.behaviors import EditableTextWithAutoSelectDetection
 from string import printable, punctuation
 from keyboardHandler import KeyboardInputGesture
 from globalCommands import commands
-from os import environ
+from locale import getdefaultlocale
 import scriptHandler
 import config
 import speech
@@ -23,7 +23,7 @@ SpecialAlphanumeric = {
 class QTEditableText(EditableTextWithAutoSelectDetection):
 
 	def _get_language(self):
-		return environ["OOBEUILANG"].split("-")[0]
+		return getdefaultlocale()[0].split("_")[0]
 
 	def initOverlayClass(self, *args, **kwargs):
 		self.debug = False
@@ -75,7 +75,7 @@ class QTEditableText(EditableTextWithAutoSelectDetection):
 			speech.speakText(_("selected"))
 		else:
 			if self.fakeCaret < len(self.value): speech.speakText(_("deselected"))
-			self.displayBraille()
+		self.displayBraille()
 
 	def nextCh(self, selection=0):
 		if self.value:
@@ -103,7 +103,7 @@ class QTEditableText(EditableTextWithAutoSelectDetection):
 			speech.speakText(_("selected"))
 		else:
 			if self.fakeCaret > 0: speech.speakText(_("deselected"))
-			self.displayBraille()
+		self.displayBraille()
 
 	def previousCh(self, selection=0):
 		if self.value:
@@ -386,13 +386,16 @@ class QTEditableText(EditableTextWithAutoSelectDetection):
 	script_reportCurrentSelection.__doc__ = commands.script_reportCurrentSelection.__doc__
 
 	def displayBraille(self):
-		brailleCaret = self.fakeCaret % braille.handler.displaySize
-		fragment = self.fakeCaret / braille.handler.displaySize
-		start = 0 + fragment * braille.handler.displaySize
-		end = braille.handler.displaySize * (fragment+1)
-		braille.handler.message(self.value[start:end-1])
-		# omitted for now. Is not well adjusted.
-		# braille.handler.messageBuffer.cursorWindowPos = brailleCaret
+		try:
+			brailleCaret = self.fakeCaret % braille.handler.displaySize
+			fragment = self.fakeCaret / braille.handler.displaySize
+			start = 0 + fragment * braille.handler.displaySize
+			end = braille.handler.displaySize * (fragment+1)
+			braille.handler.message(self.value[start:end-1])
+			# omitted for now. Is not well adjusted.
+			# braille.handler.messageBuffer.cursorWindowPos = brailleCaret
+		except ZeroDivisionError:
+			pass
 
 	__gestures = {
 	"kb:rightArrow":"nextCh",
