@@ -15,10 +15,14 @@ import globalCommands
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible
 from NVDAObjects.IAccessible.qt   import LayeredPane
+import os.path
+import appModules
+appModules.__path__.insert(0, os.path.abspath(os.path.dirname(__file__))) 
 try:
 	from qtEditableText import QTEditableText
 except:
 	QTEditableText = IAccessible
+appModules.__path__.pop(0)
 import textInfos
 from tones import beep
 from os import startfile
