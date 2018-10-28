@@ -1,5 +1,6 @@
 # Calibre
 Complemento para NVDA con algunas mejoras en la accesibilidad de la interfaz de Calibre eBook Management 
+ 
 
 * F5 abre el menú contextual de bibliotecas virtuales 
 * F6 abre el menú contextual de búsquedas guardadas 
@@ -11,4 +12,9 @@ Complemento para NVDA con algunas mejoras en la accesibilidad de la interfaz de 
 * NVDA+Control+H abre el menú contextual de configuración de la columna actual 
 * I en la vista de biblioteca lee la información del libro.
 
-Las pulsaciones de teclas se pueden personalizar en las Preferencias de NVDA > Entrada de gestos cuando calibre está abierto. 
+Las pulsaciones de teclas se pueden personalizar en las Preferencias de NVDA > Entrada de gestos cuando calibre está abierto. En preferencias también se puede definir la  forma en que NVDA leerá los encabezados de tabla en la vista de biblioteca (filas y columnas, sólo columnas o nada). 
+ 
+  Consulta la [documentación de Calibre](https://manual.calibre-ebook.com/gui.html) para descubrir  más atajos de teclado.
+ 
+  
+  Cubierto por la Licencia Pública General de GNU. Consulta el [archivo COPYING.txt](https://github.com/javidominguez/Calibre/blob/master/COPYING.txt) para más detalles.

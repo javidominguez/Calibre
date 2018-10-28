@@ -3,6 +3,17 @@
 # Build customizations
 # Change this file instead of sconstruct or manifest files, whenever possible.
 
+import os
+
+if os.path.exists(os.path.join(os.getcwd(), "addon\\manifest.ini")):
+	os.remove(os.path.join(os.getcwd(), "addon\\manifest.ini"))
+
+def tagCompilation (v="", minutes=False):
+	if v and "dev" not in v.lower(): return str(v)
+	from datetime import datetime
+	today = datetime.now()
+	return "%s%s.%s" % (v, today.year*10000+today.month*100+today.day, today.hour*60+today.minute) if minutes else "%s%s" % (v, today.year*10000+today.month*100+today.day)
+
 # Full getext (please don't change)
 _ = lambda x : x
 
@@ -17,9 +28,9 @@ addon_info = {
 	"addon_summary" : _("Calibre accesibility enhancements"),
 	# Add-on description
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
-	"addon_description" : _("Provides some accessibility enhancements for the interface of Calibre eBook Management"),
+	"addon_description" : _("Provides some accesibility enhancements for the interface of Calibre eBook Management"),
 	# version
-	"addon_version" : "1.0_rc5",
+	"addon_version" : tagCompilation("1.0_dev"),
 	# Author(s)
 	"addon_author" : u"Javi Dominguez <fjavids@gmail.com>",
 	# URL for the add-on documentation support

@@ -386,6 +386,7 @@ class QTEditableText(EditableTextWithAutoSelectDetection):
 	script_reportCurrentSelection.__doc__ = commands.script_reportCurrentSelection.__doc__
 
 	def displayBraille(self):
+		if not self.value: return
 		try:
 			brailleCaret = self.fakeCaret % braille.handler.displaySize
 			fragment = self.fakeCaret / braille.handler.displaySize
