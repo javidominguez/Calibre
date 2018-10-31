@@ -1,4 +1,8 @@
-# Calibre
+﻿# Calibre
+* Autor: Javi Domínguez 
+* Descargar [versión estable][1] 
+* Descargar [versión de desarrollo][2] 
+  
 Complemento para NVDA con algunas mejoras en la accesibilidad de la interfaz de Calibre eBook Management 
  
 
@@ -14,7 +18,18 @@ Complemento para NVDA con algunas mejoras en la accesibilidad de la interfaz de 
 
 Las pulsaciones de teclas se pueden personalizar en las Preferencias de NVDA > Entrada de gestos cuando calibre está abierto. En preferencias también se puede definir la  forma en que NVDA leerá los encabezados de tabla en la vista de biblioteca (filas y columnas, sólo columnas o nada). 
  
-  Consulta la [documentación de Calibre](https://manual.calibre-ebook.com/gui.html) para descubrir  más atajos de teclado.
+Consulta la [documentación de Calibre][3] para descubrir  más atajos de teclado.
  
   
-  Cubierto por la Licencia Pública General de GNU. Consulta el [archivo COPYING.txt](https://github.com/javidominguez/Calibre/blob/master/COPYING.txt) para más detalles.
+Cubierto por la Licencia Pública General de GNU. Consulta el [archivo COPYING.txt][4] para más detalles.
+  
+      
+[1]: https://addons.nvda-project.org/files/get.php?file=cae
+
+[2]: https://addons.nvda-project.org/files/get.php?file=cae-dev
+
+[3]: https://manual.calibre-ebook.com/gui.html
+
+[4]: https://github.com/javidominguez/Calibre/blob/master/COPYING.txt
+
+
