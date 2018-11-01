@@ -143,58 +143,6 @@ class AppModule(appModuleHandler.AppModule):
 			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 
-	def script_libraryMenu(self, gesture):
-		fg = api.getForegroundObject()
-		try:
-			obj = fg.getChild(3).getChild(13)
-		except AttributeError:
-			# TRANSLATORS: Message shown when the object is not found
-			ui.message(_("Not found"))
-		else:
-			ui.message("%s, %s" % (_("Tools bar"), obj.name))
-			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
-	# TRANSLATORS: message shown in Input gestures dialog for this script
-	script_libraryMenu.__doc__ = _("open the context menu for selecting   and maintenance library")
-
-	def script_addBooksMenu(self, gesture):
-		fg = api.getForegroundObject()
-		try:
-			obj = fg.getChild(3).getChild(1)
-		except AttributeError:
-			# TRANSLATORS: Message shown when the object is not found
-			ui.message(_("Not found"))
-		else:
-			ui.message("%s, %s" % (_("Tools bar"), obj.name))
-			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
-	# TRANSLATORS: message shown in Input gestures dialog for this script
-	script_addBooksMenu.__doc__ = _("open the context menu for adding books")
-
-	def script_searchMenu(self, gesture):
-		fg = api.getForegroundObject()
-		try:
-			obj = fg.getChild(2).getChild(0).getChild(11)
-		except AttributeError:
-			# TRANSLATORS: Message shown when the object is not found
-			ui.message(_("Not found"))
-		else:
-			ui.message("%s, %s" % (_("Search bar"), obj.name))
-			self.tbContextMenu(obj, globalCommands.commands.script_rightMouseClick)
-	# TRANSLATORS: message shown in Input gestures dialog for this script
-	script_searchMenu.__doc__ = _("open the context menu for saved searches")
-
-	def script_virtualLibrary(self, gesture):
-		fg = api.getForegroundObject()
-		try:
-			obj = fg.getChild(2).getChild(0).getChild(0)
-		except AttributeError:
-			# TRANSLATORS: Message shown when the object is not found
-			ui.message(_("Not found"))
-		else:
-			ui.message("%s, %s" % (_("Search bar"), obj.name))
-			self.tbContextMenu(obj, globalCommands.commands.script_leftMouseClick)
-	# TRANSLATORS: message shown in Input gestures dialog for this script
-	script_virtualLibrary.__doc__ = _("open the context menu for virtual libraries")
-
 	def script_search(self, gesture):
 		fg = api.getForegroundObject()
 		try:
@@ -247,10 +195,6 @@ class AppModule(appModuleHandler.AppModule):
 			raise Exception("The search expression is not found in the status bar")
 
 	__gestures = {
-	"kb:F8": "libraryMenu",
-	"kb:F7": "addBooksMenu",
-	"kb:F6": "searchMenu",
-	"kb:F5": "virtualLibrary",
 	"kb:Control+F": "search",
 	"kb:F10": "navigateToolBar",
 	"kb:NVDA+Alt+End": "booksCount"
