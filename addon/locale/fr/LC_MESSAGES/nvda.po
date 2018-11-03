@@ -1,0 +1,118 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calibre package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre dev20181031\n"
+"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"POT-Creation-Date: 2018-11-02 03:10+1000\n"
+"PO-Revision-Date: 2018-11-02 15:47+0100\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.12\n"
+
+#. TRANSLATORS: category for Calibre input gestures
+msgid "Calibre"
+msgstr "Calibre"
+
+#. Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+#. TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
+msgid "(hidden)"
+msgstr "(caché)"
+
+#. TRANSLATORS: Message shown when the object is not found
+msgid "Not found"
+msgstr "Non trouvé"
+
+msgid "Tools bar"
+msgstr "Barre d'outils"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for selecting   and maintenance library"
+msgstr ""
+"Ouvrez le menu contextuel pour sélectionner   et pour la bibliothèque de "
+"maintenance"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for adding books"
+msgstr "Ouvrez le menu contextuel pour ajouter des livres"
+
+msgid "Search bar"
+msgstr "Barre de recherche"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for saved searches"
+msgstr "Ouvrez le menu contextuel pour les recherches sauvegardées"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for virtual libraries"
+msgstr "Ouvrez le menu contextuel pour les bibliothèques virtuelles"
+
+#. TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+msgid "The search bar is not visible. Press shift+alt+f to show it."
+msgstr ""
+"La barre de recherche n'est pas visible . Pressez maj+alt+f pour l'afficher."
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "Bring focus to toolbar"
+msgstr "Amener le focus à la barre d'outils"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid ""
+"says the total of books in the current library view and the number of books "
+"selected"
+msgstr ""
+"Dire le nombre total de livres dans la vue de bibliothèque courante et le "
+"nombre de livres sélectionnés"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for settings of the current column"
+msgstr "Ouvrez le menu contextuel pour paramétrer la colonne en cours"
+
+msgid "Book info"
+msgstr "Infos sur le livre"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "search the current book in Google"
+msgstr "Rechercher le livre courant dans Google"
+
+msgid "Leaving the toolbar"
+msgstr "Sortie de la barre d'outils"
+
+#. TRANSLATORS: Message when it can't click in a item of the toolbar
+#, python-format
+msgid "Can't click in %s, try to maximize the window"
+msgstr "Impossible de cliquer sur %s, essayez de maximiser la fenêtre"
+
+#. TRANSLATORS: Preferences of table headers reading
+msgid "Report table headers"
+msgstr "Annoncer les en-têtes de tableau"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Rows and columns"
+msgstr "Lignes et colonnes"
+
+msgid "Columns only"
+msgstr "Seulement les colonnes"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+msgid "Calibre accessibility enhancements"
+msgstr "Améliorations d'accessibilité de Calibre"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+msgid ""
+"Provides some accessibility enhancements for the interface of Calibre eBook "
+"Management"
+msgstr ""
+"Apporte quelques améliorations d'accessibilité à l'interface du "
+"gestionnaire de livres numériques Calibre"

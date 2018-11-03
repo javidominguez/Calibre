@@ -6,15 +6,12 @@
   
  Một NVDA add-on với vài cải tiến về tính tiếp cận cho giao diện của trình quản lý sách điện tử Calibre
 
-* F5 mở trình đơn ngữ cảnh cho các thư viện ảo
-* F6 mở trình đơn ngữ cảnh cho các tìm kiếm đã lưu
-* F7 mở trình đơn ngữ cảnh để thêm sách vào
-* F8 open the context menu for selecting   and maintenance library
-* F10 brings the focus to   the toolbar. Then you can navigate it with standard keys (tab and arrows); enter to activate item and key applications to display the context menu; escape to exit the toolbar.
-* F12 search the current book in Google
-* NVDA+Alt+End says the total of books in the current library view and the number of books selected
-* NVDA+Control+H open the context menu for settings of the current column
-* I in library view reads the book information.
+* F8 mở trình đơn ngữ cảnh để chọn và bảo trì thư viện
+* F10 đưa con trỏ đến thanh công cụ. Sau đó, bạn có thể điều hướng với các phím chuẩn (tab và mũi tên); enter để kích hoạt mục tại vị trí con trỏ và applications để hiển thị trình đơn ngữ cảnh; escape để thoát khỏi thanh công cụ.
+* F12 tìm quyển sách hiện tại trên Google
+* NVDA+Alt+End thông báo tổng số sách trong thư viện hiện tại và số sách đã chọn
+* NVDA+Control+H mở trình đơn ngữ cảnh để cài đặt cho cột hiện tại
+* I trong kiểu xem thư viện đọc thông tin sách.
  
 Có thể tùy chỉnh các phím lệnh trong  Tùy chọn của NVDA > Quản lý các thao tác khi mở calibre. Bạn cũng có thể thiết lập trong tùy chọn cách mà NVDA đọc các tiêu đề của bảng trrong thư viện (đọc cột và dòng, chỉ đọc cột hoặc không đọc).
  
