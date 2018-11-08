@@ -6,11 +6,11 @@
   
 Lisäosa, joka parantaa Calibre-e-kirjanhallintasovelluksen käyttöliittymän saavutettavuutta
 
-* F10 brings the focus to   the toolbar. Then you can navigate it with standard keys (tab and arrows); enter to activate item and key applications to display the context menu; escape to exit the toolbar.
-* F12 search the current book in Google
-* NVDA+Alt+End says the total of books in the current library view and the number of books selected
-* NVDA+Control+H open the context menu for settings of the current column
-* I in library view reads the book information.
+* F10: siirtää kohdistuksen työkalupalkkiin, jossa voidaan liikkua tavalliseen tapaan Sarkain- ja nuolinäppäimillä. Kohde aktivoidaan Enterillä ja pikavalikko avataan sovellusnäppäimellä. Työkalupalkista poistutaan Esc-näppäimellä.
+* F12: hakee nykyistä kirjaa Googlesta
+* NVDA+Alt+End: Ilmoittaa kirjojen määrän nykyisessä kirjastonäkymässä sekä valittujen kirjojen määrän
+* NVDA+Ctrl+H: avaa nykyisen sarakkeen asetuspikavalikon
+* I: lukee kirjan tiedot kirjastonäkymässä.
  
 Näppäinkomentoja voidaan muuttaa NVDA:n Asetukset-ikkunan Syötekomennot-kategoriasta calibren ollessa avoimena. Asetuksista on myös mahdollista määrittää taulukon otsikoiden lukutapa (rivit ja sarakkeet, vain sarakkeet tai ei mitään).
  
