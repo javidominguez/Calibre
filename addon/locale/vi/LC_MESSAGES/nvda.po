@@ -1,0 +1,113 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calibre package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre dev20181031\n"
+"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"POT-Creation-Date: 2018-11-02 03:10+1000\n"
+"PO-Revision-Date: 2018-11-02 14:41+0700\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Dang Manh Cuong <dangmanhcuong@gmail.com>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2\n"
+
+#. TRANSLATORS: category for Calibre input gestures
+msgid "Calibre"
+msgstr "Calibre"
+
+#. Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+#. TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
+msgid "(hidden)"
+msgstr "(ẩn)"
+
+#. TRANSLATORS: Message shown when the object is not found
+msgid "Not found"
+msgstr "Không tìm thấy"
+
+msgid "Tools bar"
+msgstr "Thanh công cụ"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for selecting   and maintenance library"
+msgstr "mở trình đơn ngữ cảnh để chọn và bảo trì thư viện"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for adding books"
+msgstr "mở trình đơn ngữ cảnh để thêm sách"
+
+msgid "Search bar"
+msgstr "Thanh tìm kiếm"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for saved searches"
+msgstr "mở trình đơn ngữ cảnh cho các tìm kiếm đã lưu"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for virtual libraries"
+msgstr "mở trình đơn ngữ cảnh cho thư viện ảo"
+
+#. TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+msgid "The search bar is not visible. Press shift+alt+f to show it."
+msgstr "Thanh tìm kiếm không hiển thị. Bấm shift+alt+f để hiển thị nó."
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "Bring focus to toolbar"
+msgstr "Đưa con trỏ đến thanh công cụ"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid ""
+"says the total of books in the current library view and the number of books "
+"selected"
+msgstr "thông báo tổng số sách trong thư viện hiện tại và số sách đã chọn"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for settings of the current column"
+msgstr "mở trình đơn ngữ cảnh để cài đặt cho cột hiện tại"
+
+msgid "Book info"
+msgstr "Thông tin sách"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "search the current book in Google"
+msgstr "tìm quyển sách hiện tại trên Google"
+
+msgid "Leaving the toolbar"
+msgstr "Rời khỏi thanh công cụ"
+
+#. TRANSLATORS: Message when it can't click in a item of the toolbar
+#, python-format
+msgid "Can't click in %s, try to maximize the window"
+msgstr "Không thể bấm vào %s, thử phóng to cửa sổ"
+
+#. TRANSLATORS: Preferences of table headers reading
+msgid "Report table headers"
+msgstr "Thông báo tiểu đề bảng"
+
+msgid "None"
+msgstr "Không"
+
+msgid "Rows and columns"
+msgstr "Cột và dòng"
+
+msgid "Columns only"
+msgstr "Chỉ đọc cột"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+msgid "Calibre accessibility enhancements"
+msgstr "Cải thiện tính tiếp cận cho Calibre"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+msgid ""
+"Provides some accessibility enhancements for the interface of Calibre eBook "
+"Management"
+msgstr ""
+"Cung cấp vài cải tiến về tính tiếp cận cho giao diện của trình quản lý sách "
+"điện tử Calibre"

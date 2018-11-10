@@ -1,0 +1,116 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calibre package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre dev20181031\n"
+"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"POT-Creation-Date: 2018-11-02 03:10+1000\n"
+"PO-Revision-Date: 2018-11-01 20:51+0200\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Kostadin Kolev <k_kolev1985@mail.bg>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2\n"
+
+#. TRANSLATORS: category for Calibre input gestures
+msgid "Calibre"
+msgstr "Calibre"
+
+#. Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+#. TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
+msgid "(hidden)"
+msgstr "(скрито)"
+
+#. TRANSLATORS: Message shown when the object is not found
+msgid "Not found"
+msgstr "Не е намерено"
+
+msgid "Tools bar"
+msgstr "Лента с инструменти"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for selecting   and maintenance library"
+msgstr "Отваряне на контекстното меню за избор и обслужване на библиотеката"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for adding books"
+msgstr "Отваряне на контекстното меню за добавяне на книги"
+
+msgid "Search bar"
+msgstr "Лента за търсене"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for saved searches"
+msgstr "Отваряне на контекстното меню за запазени търсения"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for virtual libraries"
+msgstr "Отваряне на контекстното меню за виртуални библиотеки"
+
+#. TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+msgid "The search bar is not visible. Press shift+alt+f to show it."
+msgstr ""
+"Лентата за търсене не се вижда. Натиснете Shift+Alt+F, за да я покажете."
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "Bring focus to toolbar"
+msgstr "Преместване на фокуса в лентата с инструменти"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid ""
+"says the total of books in the current library view and the number of books "
+"selected"
+msgstr ""
+"Съобщаване на общия брой на книгите в текущия изглед на библиотеката и броя "
+"на избраните книги"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for settings of the current column"
+msgstr "Отваряне на контекстното меню за настройки на текущата колона"
+
+msgid "Book info"
+msgstr "Информация за книгата"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "search the current book in Google"
+msgstr "Търсене за текущата книга в Google"
+
+msgid "Leaving the toolbar"
+msgstr "Изход от лентата с инструменти"
+
+#. TRANSLATORS: Message when it can't click in a item of the toolbar
+#, python-format
+msgid "Can't click in %s, try to maximize the window"
+msgstr "Не може да се щракне в %s. Опитайте да максимизирате прозореца."
+
+#. TRANSLATORS: Preferences of table headers reading
+msgid "Report table headers"
+msgstr "Докладвай заглавките в таблиците"
+
+msgid "None"
+msgstr "Не"
+
+msgid "Rows and columns"
+msgstr "Редове и колони"
+
+msgid "Columns only"
+msgstr "Само колони"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+msgid "Calibre accessibility enhancements"
+msgstr "Подобрения по достъпността за Calibre"
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+msgid ""
+"Provides some accessibility enhancements for the interface of Calibre eBook "
+"Management"
+msgstr ""
+"Предоставя някои подобрения по достъпността за интерфейса на Caliber eBook "
+"Management\\"
