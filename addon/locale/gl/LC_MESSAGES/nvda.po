@@ -8,12 +8,12 @@ msgstr ""
 "Project-Id-Version: calibre dev20181031\n"
 "Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
 "POT-Creation-Date: 2018-11-02 03:10+1000\n"
-"PO-Revision-Date: 2018-11-08 21:55+0100\n"
-"Language: de\n"
+"PO-Revision-Date: 2018-11-08 23:29+0100\n"
+"Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Adriani <adriani.botez@gmail.com>\n"
+"Last-Translator: Iván Novegil <ivan.novegil.cancelas@gmail.com>\n"
 "Language-Team: \n"
 "X-Generator: Poedit 2.2\n"
 
@@ -24,90 +24,86 @@ msgstr "Calibre"
 #. Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
 #. TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
 msgid "(hidden)"
-msgstr "(versteckt)"
+msgstr "(oculto)"
 
 #. TRANSLATORS: Message shown when the object is not found
 msgid "Not found"
-msgstr "Nicht gefunden"
+msgstr "Non atopado"
 
 msgid "Tools bar"
-msgstr "Werkzeugleiste"
+msgstr "Barra de ferramentas"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "open the context menu for selecting   and maintenance library"
-msgstr "Öffnet das Kontextmenü zur Auswahl und Pflege der Bibliothek."
+msgstr "Abrir menú de contexto para selección e mantemento da biblioteca"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "open the context menu for adding books"
-msgstr "Öffnet das Kontextmenü, um Bücher hinzuzufügen."
+msgstr "Abrir menú de contexto para engadir libros."
 
 msgid "Search bar"
-msgstr "Suchleiste"
+msgstr "Barra de busca"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "open the context menu for saved searches"
-msgstr "Öffnet das Kontextmenü für die gespeicherte Suche."
+msgstr "Abrir menú de contexto de procuras gardadas"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "open the context menu for virtual libraries"
-msgstr "Öffnet das Kontextmenü für die virtuellen Bibliotheken."
+msgstr "Abrir menú de contexto de bibliotecas virtuais"
 
 #. TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
 msgid "The search bar is not visible. Press shift+alt+f to show it."
-msgstr ""
-"Die Suchleiste ist nicht sichtbar. Drücken Sie Umschalt+Alt+F, um sie "
-"anzuzeigen."
+msgstr "A barra de busca non é visible. Preme shift+alt+f para amosala."
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "Bring focus to toolbar"
-msgstr "Setzt den Fokus auf die Werkzeugleiste."
+msgstr "Levar o foco á barra de ferramentas"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid ""
 "says the total of books in the current library view and the number of books "
 "selected"
 msgstr ""
-"Sagt die Anzahl der Bücher in der aktuellen Bibliotheksansicht und die "
-"Anzahl der ausgewählten Bücher an."
+"di o total de libros na visualización de biblioteca actual e e o número de "
+"libros seleccionados"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "open the context menu for settings of the current column"
-msgstr "Öffnet das Kontextmenü für die Einstellungen der aktuellen Spalte."
+msgstr "Abrir menú de contexto de axustes para a columna actual"
 
 msgid "Book info"
-msgstr "Buchinfo"
+msgstr "Información do libro"
 
 #. TRANSLATORS: message shown in Input gestures dialog for this script
 msgid "search the current book in Google"
-msgstr "Das aktuelle Buch in Google suchen"
+msgstr "procurar o libro actual en Google"
 
 msgid "Leaving the toolbar"
-msgstr "Werkzeugleiste verlassen"
+msgstr "Abandoando a barra de ferramentas"
 
 #. TRANSLATORS: Message when it can't click in a item of the toolbar
 #, python-format
 msgid "Can't click in %s, try to maximize the window"
-msgstr ""
-"Der Klick in %s konnte nicht ausgeführt werden. Versuchen Sie das Fenster "
-"zu maximieren."
+msgstr "Non se pode facer clic en %s, proba maximizando a xanela"
 
 #. TRANSLATORS: Preferences of table headers reading
 msgid "Report table headers"
-msgstr "Tabellenüberschriften ansagen"
+msgstr "Anunciar encabezamentos de táboa"
 
 msgid "None"
-msgstr "Keine"
+msgstr "nada"
 
 msgid "Rows and columns"
-msgstr "Zeilen und Spalten"
+msgstr "Filas e columnas"
 
 msgid "Columns only"
-msgstr "Nur Spalten"
+msgstr "Só columnas"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "Calibre accessibility enhancements"
-msgstr "Verbesserung der Zugänglichkeit von Calibre."
+msgstr "Melloras de accesibilidade en Calibre"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -115,5 +111,5 @@ msgid ""
 "Provides some accessibility enhancements for the interface of Calibre eBook "
 "Management"
 msgstr ""
-"Bietet einige Verbesserungen der Zugänglichkeit für die Schnittstelle der "
-"Buchverwaltung von Calibre."
+"Fornece algunhas melloras de accesibilidade para a interface do "
+"administrador de libros electrónicos Calibre"
