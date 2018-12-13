@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the calibre package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre dev20181031\n"
+"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"POT-Creation-Date: 2018-11-23 03:10+1000\n"
+"PO-Revision-Date: 2018-12-07 01:50+0200\n"
+"Last-Translator: shmuel naaman <shmuel_naaman@yahoo.com>\n"
+"Language-Team: Shmuel Naaman <nvda.israel@gmail.com>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+
+#. TRANSLATORS: category for Calibre input gestures
+msgid "Calibre"
+msgstr "Calibre"
+
+#. Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+#. TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
+msgid "(hidden)"
+msgstr "[מוסתר]"
+
+#. TRANSLATORS: Message shown when the object is not found
+msgid "Not found"
+msgstr "לא נמצא"
+
+msgid "Tools bar"
+msgstr "סרגל כלים"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for selecting   and maintenance library"
+msgstr "פתח את תפריט ההקשר בכדי לסמן ספריית תחזוקה"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for adding books"
+msgstr "פתח את תפריט ההקשר בכדי להוסיף ספרים.ספר"
+
+msgid "Search bar"
+msgstr "סרגל החיפוש"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for saved searches"
+msgstr "פתח את תפריט ההקשר בכדי לעיין בחיפושים שנישמרו"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for virtual libraries"
+msgstr "פתח את תפריט ההקשר בכדי לעיין בספריה הווירטואלית"
+
+#. TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
+msgid "The search bar is not visible. Press shift+alt+f to show it."
+msgstr "סרגל החיפוש אינו מוצג, לחץ shift+alt+f to  בכדי להציגו"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "Bring focus to toolbar"
+msgstr "העבר את הפוקוס לסרגל הכלים."
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid ""
+"says the total of books in the current library view and the number of books "
+"selected"
+msgstr "מקריא את כמות הספרים בספריה הנוכחית ואת כמות הספרים שנבחרו."
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "open the context menu for settings of the current column"
+msgstr "פתח את תפריט ההקשר בכדי להגדיר את העמודה הנוכחית"
+
+msgid "Book info"
+msgstr "מידע על הספר"
+
+#. TRANSLATORS: message shown in Input gestures dialog for this script
+msgid "search the current book in Google"
+msgstr "חפש את הספר הנוכחי בגוגל "
+
+msgid "Leaving the toolbar"
+msgstr "עוזב את סרגל הכלים"
+
+#. TRANSLATORS: Message when it can't click in a item of the toolbar
+#, python-format
+msgid "Can't click in %s, try to maximize the window"
+msgstr "לא מצליח לבצע לחיצה על %s  אנא נסה להגדיל את החלון"
+
+#. TRANSLATORS: Preferences of table headers reading
+msgid "Report table headers"
+msgstr "דווח עלכותרות טבלה"
+
+msgid "None"
+msgstr "ללא"
+
+msgid "Rows and columns"
+msgstr "עמודות ושורות"
+
+msgid "Columns only"
+msgstr "עמודות בלבד"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+msgid "Calibre accessibility enhancements"
+msgstr "הרחבות הנגישות של Calibre "
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+msgid ""
+"Provides some accessibility enhancements for the interface of Calibre eBook "
+"Management"
+msgstr "מספק הרחבה של אפשרויות הנגישות בCalibre "
