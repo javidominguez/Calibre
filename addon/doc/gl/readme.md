@@ -14,7 +14,7 @@
  
 As teclas de atallo pódense persoalizar nas Preferencias do NVDA > Xestos de entrada cando o Calibre estea aberto. Tamén podes definir nas preferencias a maneira na que NVDA le os encabezados de columna na biblioteca (filas e columnas, só columnas ou ningunha).
  
- Bótalle unha ollada á [documentation of Calibre][3] para coñecer máis atallos de teclado.
+ Bótalle unha ollada á [documentación de Calibre][3] para coñecer máis atallos de teclado.
  
   
 Cuberto pola GNU General Public License. Le o arquivo [COPYING.txt][4] para máis detalles.  
