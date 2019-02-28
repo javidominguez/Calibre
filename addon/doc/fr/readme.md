@@ -4,7 +4,7 @@
 * Télécharger [version stable][1]
 * Télécharger [version de développement][2]
   
- Un module complémentaire NVDA avec quelques améliorations d'accessibilité à l'interface du gestionnaire de livres numériques Calibre
+ Une extension NVDA avec quelques améliorations d'accessibilité à l'interface du gestionnaire de livres numériques Calibre
 
 * F10 Amène le focus à la barre d'outils. Ensuite, vous pouvez naviguer avec les touches standard (tab et flèches) ; entrer pour activer l'élément et la touche applications pour afficher le menu contextuel ; ECHAP pour quitter la barre d'outils.
 * F12 Rechercher le livre courant dans Google
