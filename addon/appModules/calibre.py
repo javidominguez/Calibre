@@ -5,6 +5,7 @@
 #See the file COPYING.txt for more details.
 #Copyright (C) 2018 Javi Dominguez <fjavids@gmail.com>
 
+from .py3compatibility import *
 import appModuleHandler
 import addonHandler
 import api
@@ -19,7 +20,7 @@ import os.path
 import appModules
 appModules.__path__.insert(0, os.path.abspath(os.path.dirname(__file__))) 
 try:
-	from qtEditableText import QTEditableText
+	from .qtEditableText import QTEditableText
 except:
 	QTEditableText = IAccessible
 appModules.__path__.pop(0)
@@ -343,11 +344,18 @@ class TableCell(IAccessible):
 			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
 		else:
 			sleep(0.50)
-			ui.message(api.getClipData())
-		if not api.copyToClip(clipboard):
-			api.win32clipboard.OpenClipboard()
-			api.win32clipboard.EmptyClipboard()
-			api.win32clipboard.CloseClipboard()
+			try:
+				ui.message(api.getClipData())
+			except PermissionError:
+				pass
+		try:
+			sleep(0.2)
+			if True or not api.copyToClip(clipboard):
+				api.win32clipboard.OpenClipboard()
+				api.win32clipboard.EmptyClipboard()
+				api.win32clipboard.CloseClipboard()
+		except (PermissionError, AttributeError):
+			pass
 
 	def script_searchBookInTheWeb(self, gesture):
 		domain = "google.com"
