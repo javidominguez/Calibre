@@ -2,7 +2,7 @@
   
 * Autor: Javi Dominguez
 * [Stabile Version herunterladen][1]
-* [Testversion herunterladen][2]
+* [Entwicklerversion herunterladen][2]
   
 Eine NVDA-Erweiterung mit einigen Verbesserungen der Zugänglichkeit für die Schnittstelle der Buchverwaltung von Calibre.
 
