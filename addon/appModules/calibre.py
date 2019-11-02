@@ -5,6 +5,8 @@
 #See the file COPYING.txt for more details.
 #Copyright (C) 2018 Javi Dominguez <fjavids@gmail.com>
 
+#@ Adapting the addon for changes in Caliber 4x
+
 from .py3compatibility import *
 import appModuleHandler
 import addonHandler
@@ -14,8 +16,11 @@ import ui
 import braille
 import globalCommands
 import scriptHandler
-from NVDAObjects.IAccessible import IAccessible
-from NVDAObjects.IAccessible.qt   import LayeredPane
+#@ IAccessible objects now are UIA objects. Importing from UIA but keeping names for now.
+#@ from NVDAObjects.IAccessible import IAccessible
+from NVDAObjects.UIA import UIA as IAccessible
+#@ from NVDAObjects.IAccessible.qt   import LayeredPane
+from NVDAObjects.UIA import UIA as LayeredPane
 import os.path
 import appModules
 appModules.__path__.insert(0, os.path.abspath(os.path.dirname(__file__))) 
@@ -79,12 +84,14 @@ class AppModule(appModuleHandler.AppModule):
 		if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
 			obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
 			clsList.insert(0, TextInComboBox)
-		if obj.role == controlTypes.ROLE_COMBOBOX and obj.childCount == 2:
-				clsList.insert(0, ComboBox)
-		if obj.role == controlTypes.ROLE_TABLECELL:
+		#@ This causes a crash:
+		#@ if obj.role == controlTypes.ROLE_COMBOBOX and obj.childCount == 2:
+				#@ clsList.insert(0, ComboBox)
+		if obj.role == controlTypes.ROLE_DATAITEM:
 			obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
-			clsList.insert(0, TableCell)
-		try:
+			#@ TableCells now are Dataitems but TableCell class crashes. It needs to be adapted.
+			#@ clsList.insert(0, TableCell)
+		try: #@ That way it can't find it anymore. Find a valid ID for this pane
 			if obj.role == controlTypes.ROLE_PANE and obj.IAccessibleRole == controlTypes.ROLE_MENUBAR and obj.parent.IAccessibleRole == 1050:
 				clsList.insert(0, preferencesPane)
 		except AttributeError:
