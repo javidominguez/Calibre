@@ -52,6 +52,8 @@ class AppModule(appModuleHandler.AppModule):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.lastBooksCount = []
 		self.oldCaret = 0
+		self.lastRowHeader = ""
+		self.lastColumnHeader = ""
 		if hasattr(settingsDialogs, 'SettingsPanel'):
 			NVDASettingsDialog.categoryClasses.append(calibrePanel)
 
@@ -97,7 +99,7 @@ class AppModule(appModuleHandler.AppModule):
 				clsList.insert(0, UIATextInComboBox)
 			if obj.UIAElement.currentClassName == "SearchBox2":
 				clsList.insert(0, UIAComboBox)
-			if obj.role == controlTypes.ROLE_TABLECELL:
+			if obj.role == controlTypes.ROLE_DATAITEM:
 				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 				clsList.insert(0, UIATableCell)
 			try:

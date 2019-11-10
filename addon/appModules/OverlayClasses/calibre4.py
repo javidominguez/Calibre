@@ -16,7 +16,7 @@ import ui
 import braille
 import globalCommands
 import scriptHandler
-from NVDAObjects.UIA import UIA, UIColumnHeader
+from NVDAObjects.UIA import UIA, UIColumnHeader, ComboBoxWithoutValuePattern, UIItem
 import os.path
 import appModules
 appModules.__path__.insert(0, os.path.abspath(os.path.dirname(__file__))) 
@@ -29,7 +29,7 @@ import textInfos
 from tones import beep
 from os import startfile
 import winUser
-from speech import speakObject, pauseSpeech
+from speech import speakObject, speakText, pauseSpeech
 from keyboardHandler import KeyboardInputGesture
 from time import sleep
 import re
@@ -41,7 +41,7 @@ addonHandler.initTranslation()
 class UIAEnhancedHeader(UIColumnHeader):
 	pass
 
-class UIATextInComboBox(UIA):
+class UIATextInComboBox(ComboBoxWithoutValuePattern):
 
 	def event_caret (self):
 		if hasattr(self.parent, "fakeCaret"):
@@ -69,7 +69,7 @@ class UIAComboBox(QTEditableText):
 	def event_valueChange(self):
 		if self.value: ui.message(self.value)
 
-class UIATableCell(UIA):
+class UIATableCell(UIItem):
 
 	# TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
@@ -101,129 +101,46 @@ class UIATableCell(UIA):
 		if hasattr(self.appModule, "columnTitles"):
 			return self.appModule.columnTitles
 		titles = []
-		obj = self.parent.firstChild
-		while obj.role != controlTypes.ROLE_TABLECOLUMNHEADER and obj.role != controlTypes.ROLE_TABLECELL:
+		obj = self.table.firstChild
+		while obj.role != controlTypes.ROLE_HEADER and obj.role != controlTypes.ROLE_DATAITEM:
 			obj = obj.simpleNext
-		while obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+		while obj.role == controlTypes.ROLE_HEADER:
 			titles.append(obj.name)
 			obj = obj.simpleNext
 		# Stores this information in appModule to not have to search it again each time a cell is focused, which would cause a slowdown
 		setattr(self.appModule, "columnTitles", titles)
 		return titles
 
-	def _get_inTitleColumn(self):
-		try:
-			if self.columnHeaderText == self.columnTitles[1]: return True
-		except IndexError:
-			return False
-		return False
-
-	def _get_inAuthorColumn(self):
-		try:
-			if self.columnHeaderText == self.columnTitles[2]: return True
-		except IndexError:
-			return False
-		return False
-
 	def event_gainFocus(self):
 		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
-			try:
-				self.states.remove(controlTypes.STATE_SELECTED)
-			except KeyError:
-				pass
-		if not self.name:
-			self.name = " "
-		self.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
-		if versionInfo.version_year*100+versionInfo.version_major >= 201802:
-			config.conf['documentFormatting']['reportTableHeaders'] = True if config.conf['calibre']['reportTableHeaders'] == "st" else False
-		if self.columnHeaderText and (
-		(versionInfo.version_year*100+versionInfo.version_major < 201802 and config.conf['documentFormatting']['reportTableHeaders']) or (
-		versionInfo.version_year*100+versionInfo.version_major >= 201802 and config.conf['calibre']['reportTableHeaders'] == "cl")):
-			# Reporting table headers at classic style (used in previous versions of NVDA or in new versions if read only column headers is selected in preferences)
-			if not self.inTitleColumn and not self.inAuthorColumn:
-				self.description = self.columnHeaderText
-		speakObject(self, controlTypes.REASON_CARET)
+			pass #@
+		rowHeaderText = ""
+		columnHeaderText = ""
+		if config.conf['calibre']['reportTableHeaders'] == "st":
+			if self.rowHeaderText != self.appModule.lastRowHeader:
+				rowHeaderText = "%s; " % self.rowHeaderText
+			if self.columnHeaderText != self.appModule.lastColumnHeader:
+				columnHeaderText = "; %s" % self.columnHeaderText
+		if config.conf['calibre']['reportTableHeaders'] == "cl" and\
+		self.columnHeaderText != self.appModule.lastColumnHeader:
+			columnHeaderText = "; %s" % self.columnHeaderText
+		speakText("%s%s%s" % (rowHeaderText, self.name, columnHeaderText))
 		braille.handler.handleGainFocus(self)
-
-	def event_loseFocus(self):
-		config.conf['documentFormatting']['reportTableHeaders'] = self.reportHeaders
+		self.appModule.lastRowHeader = self.rowHeaderText
+		self.appModule.lastColumnHeader = self.columnHeaderText
 
 	def script_headerOptions(self, gesture):
 		if self.parent.simpleParent.role == controlTypes.ROLE_DIALOG: return
-		obj = self.parent.getChild(1)
-		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+		obj = self.table.simpleFirstChild
+		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_HEADER:
 			obj = obj.next
 		api.setNavigatorObject(obj)
-		speakObject(obj)
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+		KeyboardInputGesture.fromName("downArrow").send()
 	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
-
-	def script_bookInfo(self, gesture):
-		if api.getForegroundObject().role == controlTypes.ROLE_DIALOG:
-			gesture.send()
-			return
-		title = self.getDataFromColumn(1)
-		if title: ui.message(title)
-		try:
-			clipboard = api.getClipData()
-		except TypeError: # Specified clipboard format is not available
-			clipboard = ""
-		gesture.send()
-		KeyboardInputGesture.fromName("tab").send() # Skip to document
-		KeyboardInputGesture.fromName("applications").send() # Open context menu
-		KeyboardInputGesture.fromName("downArrow").send() # Down to first item in menu: Copy to clipboard
-		KeyboardInputGesture.fromName("Enter").send() # Activate menu item
-		KeyboardInputGesture.fromName("escape").send() # Close dialog
-		if scriptHandler.getLastScriptRepeatCount() == 1:
-			ui.browseableMessage(api.getClipData(), title if title else _("Book info"))
-		else:
-			sleep(0.50)
-			try:
-				ui.message(api.getClipData())
-			except PermissionError:
-				pass
-		try:
-			sleep(0.2)
-			if True or not api.copyToClip(clipboard):
-				api.win32clipboard.OpenClipboard()
-				api.win32clipboard.EmptyClipboard()
-				api.win32clipboard.CloseClipboard()
-		except (PermissionError, AttributeError):
-			pass
-
-	def script_searchBookInTheWeb(self, gesture):
-		domain = "google.com"
-		title = self.getDataFromColumn(1)
-		author = self.getDataFromColumn(2)
-		if not title or not author:
-			gesture.send()
-			return
-		url = u'https://www.%s/search?tbm=bks&q=intitle:%s+inauthor:%s' % (domain, title, author)
-		startfile(url)
-	# TRANSLATORS: message shown in Input gestures dialog for this script
-	script_searchBookInTheWeb.__doc__ = _("search the current book in Google")
-
-	def getDataFromColumn(self, columnNumber):
-		try:
-			columnName = self.columnTitles[columnNumber]
-		except IndexError:
-			return ""
-		if self.columnHeaderText.lower() == columnName.lower():
-			return self.name
-		obj = self.previous
-		while obj.role == controlTypes.ROLE_TABLECELL:
-			if obj.columnHeaderText.lower() == columnName.lower():
-				return obj.name
-			obj = obj.previous
-		obj = self.next
-		while obj.role == controlTypes.ROLE_TABLECELL:
-			if obj.columnHeaderText.lower() == columnName.lower():
-				return obj.name
-			obj = obj.next
-		return ""
 
 	def script_skipNextOutside(self, gesture):
 		obj = self.nextOutsideObject
@@ -257,8 +174,6 @@ class UIATableCell(UIA):
 
 	__gestures = {
 	"kb:NVDA+Control+H": "headerOptions",
-	"kb:I": "bookInfo",
-	"kb:F12": "searchBookInTheWeb",
 	"kb:Control+Tab": "skipNextOutside",
 	"kb:Shift+Control+Tab": "skipPreviousOutside"
 	}
