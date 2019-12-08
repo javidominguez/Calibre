@@ -194,14 +194,14 @@ class UIApreferencesPane(UIA):
 
 	def event_gainFocus(self):
 		isMultitab = False
-		ch = self.simpleFirstChild
+		ch = self.firstChild.firstChild.firstChild
 		while ch:
-			if ch.IAccessibleRole == controlTypes.ROLE_TAB:
+			if ch.UIAElement.currentClassName == "Category":
 				isMultitab = True
 				break
 			ch = ch.next
 		try:
-			if isMultitab: self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.ROLE_HEADING1 and i.next.IAccessibleRole == controlTypes.ROLE_TAB, self.recursiveDescendants)
+			if isMultitab: self.tabItems = filter(lambda i: i.UIAElement.currentClassName == "QLabel" and i.parent.UIAElement.currentClassName == "Category", self.recursiveDescendants)
 		except AttributeError:
 			self.tabItems = []
 		if self.tabItems:
@@ -210,14 +210,6 @@ class UIApreferencesPane(UIA):
 			if not hasattr(fg, "tabIndex"):
 				setattr(fg, "tabIndex", 0)
 			self.__updateTab(fg.tabIndex)
-		else:
-			try:
-				if self.simpleFirstChild.IAccessibleRole == controlTypes.ROLE_HEADING1:
-					self.name = self.simpleFirstChild.name
-			except AttributeError:
-				pass
-			self.name = self.simpleParent.name if not self.name and self.simpleParent.role == 4 else self.name
-			speakObject(self)
 
 	def __skipToTab(self, skip):
 		if not self.tabItems:
@@ -284,6 +276,15 @@ class UIApreferencesPane(UIA):
 	"kb:Enter": "doAction",
 	"kb:Space": "doAction"
 	}
+
+class UIAConfigWidget(UIA):
+
+	def event_gainFocus(self):
+		if self.simpleFirstChild.UIAElement.currentClassName == "QLabel":
+			self.name = self.simpleFirstChild.name
+		elif self.simpleNext.UIAElement.currentClassName == "QLabel":
+			self.name = self.simpleNext.name
+		speakObject(self)
 
 class UIAUnfocusableToolBar(UIA):
 

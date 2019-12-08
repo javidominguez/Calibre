@@ -103,11 +103,16 @@ class AppModule(appModuleHandler.AppModule):
 				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 				clsList.insert(0, UIATableCell)
 			try:
-				if obj.role == controlTypes.ROLE_PANE and obj.IAccessibleRole == controlTypes.ROLE_MENUBAR and obj.parent.IAccessibleRole == 1050:
+				if obj.UIAElement.currentClassName == "Browser" and obj.parent.parent.UIAElement.currentClassName == "Preferences":
 					clsList.insert(0, UIApreferencesPane)
 			except AttributeError:
 				pass
-			if obj.role == controlTypes.ROLE_TOOLBAR and not obj.isFocusable:
+			try:
+				if obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
+					clsList.insert(0, UIAConfigWidget)
+			except AttributeError:
+				pass
+			if obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
 				clsList.insert(0, UIAUnfocusableToolBar)
 
 	def event_gainFocus(self, obj, nextHandler):
