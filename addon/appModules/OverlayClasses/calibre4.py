@@ -32,9 +32,7 @@ import winUser
 from speech import speakObject, speakText, pauseSpeech
 from keyboardHandler import KeyboardInputGesture
 from time import sleep
-import re
 import config
-import versionInfo
 
 addonHandler.initTranslation()
 
@@ -112,8 +110,6 @@ class UIATableCell(UIItem):
 		return titles
 
 	def event_gainFocus(self):
-		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
-			pass #@
 		rowHeaderText = ""
 		columnHeaderText = ""
 		if config.conf['calibre']['reportTableHeaders'] == "st":
@@ -245,7 +241,6 @@ class UIApreferencesPane(UIA):
 			api.setNavigatorObject(self.focusedWidget)
 			speakObject(self.focusedWidget)
 		else:
-			# gesture.send()
 			KeyboardInputGesture.fromName("tab").send()
 
 	def script_previousWidget(self, gesture):
@@ -297,7 +292,7 @@ class UIAUnfocusableToolBar(UIA):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.next if obj.next else self.firstChild
-			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+			while (obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON) or obj.role == controlTypes.ROLE_GROUPING:
 				obj = obj.next if obj.next else self.firstChild
 			self._setFakeFocus(obj)
 		else:
@@ -307,7 +302,7 @@ class UIAUnfocusableToolBar(UIA):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.previous if obj.previous else self.lastChild
-			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+			while (obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON) or obj.role == controlTypes.ROLE_GROUPING:
 				obj = obj.previous if obj.previous else self.lastChild
 			self._setFakeFocus(obj)
 		else:
@@ -317,7 +312,14 @@ class UIAUnfocusableToolBar(UIA):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			if obj.actionCount >0:
-				scriptHandler.executeScript(globalCommands.commands.script_review_activate, KeyboardInputGesture)
+				x = int(obj.location.left + obj.location.width/2)
+				y = int(obj.location.top + obj.location.height/2)
+				winUser.setCursorPos(x, y)
+				if api.getDesktopObject().objectFromPoint(x,y) == obj:
+					if winUser.getKeyState(winUser.VK_LBUTTON)&32768:
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,None,None)
+					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
 			else:
 				scriptHandler.executeScript(self.script_menu, None)
 		else:
@@ -325,13 +327,14 @@ class UIAUnfocusableToolBar(UIA):
 
 	def script_menu(self, gesture):
 		obj = api.getNavigatorObject()
-		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states:
+		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states and obj.role != controlTypes.ROLE_CHECKBOX:
 			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
 			pauseSpeech(True)
 			x, y = winUser.getCursorPos()
 			if x >= obj.location[0]:
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+				scriptHandler.executeScript(self.script_exit, None)
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
 				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))

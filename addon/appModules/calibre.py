@@ -3,7 +3,7 @@
 # Calibre Enhancements add-on for NVDA
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
-#Copyright (C) 2018 Javi Dominguez <fjavids@gmail.com>
+#Copyright (C) 2018-2019 Javi Dominguez <fjavids@gmail.com>
 
 from .py3compatibility import *
 from .OverlayClasses import *
@@ -12,8 +12,6 @@ import addonHandler
 import api
 import controlTypes
 import ui
-import braille
-import globalCommands
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible
 from NVDAObjects.UIA import UIA
@@ -22,10 +20,7 @@ from tones import beep
 from os import startfile
 import winUser
 from speech import speakObject, pauseSpeech
-from keyboardHandler import KeyboardInputGesture
-from time import sleep
 import re
-import versionInfo
 import config
 import wx
 from gui import guiHelper 
@@ -160,6 +155,14 @@ class AppModule(appModuleHandler.AppModule):
 			self.lastBooksCount = booksCount
 		nextHandler()
 
+	def event_stateChange(self, obj, nextHandler):
+		if obj.UIAElement.currentClassName == "QToolBarExtension" and api.getFocusObject().role == controlTypes.ROLE_TOOLBAR:
+			if controlTypes.STATE_CHECKED in obj.states:
+				ui.message(_("Expanded toolbar"))
+			else:
+				ui.message(_("Collapsed toolbar"))
+		nextHandler()
+
 	def tbContextMenu(self, obj, func):
 		api.setNavigatorObject(obj)
 		x = obj.location[0]+2
@@ -189,7 +192,7 @@ class AppModule(appModuleHandler.AppModule):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
 		try:
-			toolBar = filter(lambda o: o.role == 35, fg.children)[0]
+			toolBar = filter(lambda o: o.role == controlTypes.ROLE_TOOLBAR, fg.children)[0]
 			toolBar.show()
 		except:
 			# TRANSLATORS: Message shown when the object is not found
