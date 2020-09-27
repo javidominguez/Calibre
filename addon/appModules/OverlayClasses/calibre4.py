@@ -58,9 +58,10 @@ class UIATextInComboBox(ComboBoxWithoutValuePattern):
 					ui.message(self.TextInfo .text[caret:].split()[0])
 				else:
 					ui.message(ch)
-		except IndexError:
+		except (IndexError, AttributeError):
 			pass
-		self.appModule.oldCaret = caret
+		else:
+			self.appModule.oldCaret = caret
 
 class UIAComboBox(QTEditableText):
 
