@@ -103,7 +103,7 @@ class AppModule(appModuleHandler.AppModule):
 			except AttributeError:
 				pass
 			try:
-				if obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
+				if self.productVersion and re.match("4\.", self.productVersion) and obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
 					clsList.insert(0, UIAConfigWidget)
 			except AttributeError:
 				pass
@@ -137,6 +137,16 @@ class AppModule(appModuleHandler.AppModule):
 			self.lastBooksCount = self._getBooksCount().split(",")
 		except:
 			pass
+		# get calibre version
+		if not self.productVersion and not self.productName:
+			try:
+				statusBar = filter(lambda o: o.role == controlTypes.ROLE_STATUSBAR, obj.children)[0]
+				statusBarText = " ".join([obj.name for obj in statusBar.children])
+				productInfo = re.search(r"calibre \d\.\d+\.\d+", statusBarText)
+				if productInfo:
+					self.productName, self.productVersion = productInfo.group().split()
+			except:
+				pass
 		nextHandler()
 
 	def event_nameChange(self, obj, nextHandler):
