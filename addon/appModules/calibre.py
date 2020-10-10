@@ -3,7 +3,7 @@
 # Calibre Enhancements add-on for NVDA
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
-#Copyright (C) 2018-2019 Javi Dominguez <fjavids@gmail.com>
+#Copyright (C) 2018-2020 Javi Dominguez <fjavids@gmail.com>
 
 from .py3compatibility import *
 from .OverlayClasses import *
