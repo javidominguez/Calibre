@@ -25,8 +25,9 @@ class AppModule(appModuleHandler.AppModule):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.alreadySpoken = []
 		self.chapter = None
+		self.currentParagraph = None
 
-	def readPage(self):
+	def readPage(self, direction=None):
 		fg = api.getForegroundObject()
 		focus = api.getFocusObject()
 		chapter = focus.name if focus and focus.name else None
@@ -38,10 +39,40 @@ class AppModule(appModuleHandler.AppModule):
 		textOnScreen = filter(lambda o: o.role == controlTypes.ROLE_STATICTEXT and controlTypes.STATE_OFFSCREEN not in o.states and obj not in self.alreadySpoken, obj.recursiveDescendants)
 		if textOnScreen:
 			textOnScreen = list(textOnScreen)
-			page = "\n".join([i.name for i in textOnScreen])
-			ui.message(page)
-			api.setNavigatorObject(textOnScreen[0])
+			if direction == None:
+				page = "\n".join([i.name for i in textOnScreen])
+				ui.message(page)
+				direction = 0
+			else:
+				ui.message(textOnScreen[direction].name)
+			self.currentParagraph = textOnScreen[direction]
+			api.setNavigatorObject(textOnScreen[direction])
+			textOnScreen[direction].scrollIntoView
 			self.alreadySpoken = textOnScreen
+
+	def script_readNext(self, gesture):
+		obj = self.currentParagraph.simpleNext if self.currentParagraph else None
+		if obj and obj in self.alreadySpoken:
+			ui.message(obj.name)
+			self.currentParagraph = obj
+			api.setNavigatorObject(self.currentParagraph)
+			self.currentParagraph.scrollIntoView()
+		else:
+			gesture.send()
+			sleep(0.15)
+			self.readPage(0)
+
+	def script_readPrevious(self, gesture):
+		obj = self.currentParagraph.simplePrevious if self.currentParagraph else None
+		if obj and obj in self.alreadySpoken:
+			ui.message(obj.name)
+			self.currentParagraph = obj
+			api.setNavigatorObject(self.currentParagraph)
+			self.currentParagraph.scrollIntoView()
+		else:
+			gesture.send()
+			sleep(0.15)
+			self.readPage(-1)
 
 	def script_read(self, gesture):
 		gesture.send()
@@ -49,8 +80,10 @@ class AppModule(appModuleHandler.AppModule):
 		self.readPage()
 
 	__gestures = {
-	"kb:downArrow": "read",
-	"kb:upArrow": "read",
+	"kb:downArrow": "readNext",
+	"kb:upArrow": "readPrevious",
 	"kb:pageUp": "read",
-	"kb:pageDown": "read"
+	"kb:pageDown": "read",
+	"kb:control+pageUp": "read",
+	"kb:control+pageDown": "read"
 	}
