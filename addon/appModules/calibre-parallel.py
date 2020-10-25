@@ -13,6 +13,8 @@ import controlTypes
 import ui
 import winUser
 from time import sleep
+from speech import speakText
+from keyboardHandler import KeyboardInputGesture
 
 addonHandler.initTranslation()
 
@@ -24,37 +26,49 @@ class AppModule(appModuleHandler.AppModule):
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.alreadySpoken = []
-		self.chapter = None
+		self.section = None
 		self.currentParagraph = None
+
+	def event_foreground(self, fg, nextHandler):
+		try:
+			obj = fg.getChild(2).getChild(1)
+		except:
+			pass
+		else:
+			if obj.name: speakText(obj.name)
+		nextHandler()
 
 	def readPage(self, direction=None):
 		fg = api.getForegroundObject()
 		focus = api.getFocusObject()
-		chapter = focus.name if focus and focus.name else None
-		if chapter != self.chapter:
+		section = focus.name if focus and focus.name else None
+		if section != self.section:
 			obj = api.getFocusObject().parent
-			self.chapter = chapter
+			self.section = section
 		else:
 			try:
 				try:
-					obj = fg.getChild(1).getChild(0).getChild(0).getChild(0).getChild(2)
+					obj = fg.getChild(1).firstChild.firstChild.firstChild.getChild(2)
 				except IndexError: # It's probably full screen
-					obj = fg.getChild(0).getChild(0).getChild(0).getChild(0).getChild(2)
+					obj = fg.firstChild.firstChild.firstChild.firstChild.getChild(2)
 			except:
-				ui.message(_("Text not found"))
+				speakText(_("Text not found"))
 				return
 		textOnScreen = filter(lambda o: o.role == controlTypes.ROLE_STATICTEXT and controlTypes.STATE_OFFSCREEN not in o.states and obj not in self.alreadySpoken, obj.recursiveDescendants)
 		if textOnScreen:
 			textOnScreen = list(textOnScreen)
 			if textOnScreen == self.alreadySpoken:
-				self.mouseClick(textOnScreen[-1])
-				return
+				try:
+					self.mouseClick(textOnScreen[-1])
+				except IndexError:
+					pass
+				return	
 			if direction == None:
 				page = "\n".join([i.name for i in textOnScreen])
-				ui.message(page)
+				speakText(page)
 				direction = 0
 			else:
-				ui.message(textOnScreen[direction].name)
+				speakText(textOnScreen[direction].name)
 			self.currentParagraph = textOnScreen[direction]
 			api.setNavigatorObject(textOnScreen[direction])
 			textOnScreen[direction].scrollIntoView
@@ -64,18 +78,12 @@ class AppModule(appModuleHandler.AppModule):
 		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
 			gesture.send()
 			return
-		fg = api.getForegroundObject()
-		toolBar = None
-		try:
-			toolBar = fg.getChild(1).getChild(0).getChild(0).getChild(0).getChild(5)
-		except:
-			pass
-		if toolBar:
-			ui.message("Tool Bar is open")
-			return
+		if self.isToolBarOpen():
+			KeyboardInputGesture.fromName("escape").send()
+			sleep(0.05)
 		obj = self.currentParagraph.simpleNext if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
-			ui.message(obj.name)
+			speakText(obj.name)
 			self.currentParagraph = obj
 			api.setNavigatorObject(self.currentParagraph)
 			self.currentParagraph.scrollIntoView()
@@ -88,18 +96,12 @@ class AppModule(appModuleHandler.AppModule):
 		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
 			gesture.send()
 			return
-		fg = api.getForegroundObject()
-		toolBar = None
-		try:
-			toolBar = fg.getChild(1).getChild(0).getChild(0).getChild(0).getChild(5)
-		except:
-			pass
-		if toolBar:
-			ui.message("Tool Bar is open")
-			return
+		if self.isToolBarOpen():
+			KeyboardInputGesture.fromName("escape").send()
+			sleep(0.05)
 		obj = self.currentParagraph.simplePrevious if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
-			ui.message(obj.name)
+			speakText(obj.name)
 			self.currentParagraph = obj
 			api.setNavigatorObject(self.currentParagraph)
 			self.currentParagraph.scrollIntoView()
@@ -125,6 +127,18 @@ class AppModule(appModuleHandler.AppModule):
 		if button == "right":
 			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 			winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+
+	def isToolBarOpen(self):
+		fg = api.getForegroundObject()
+		toolBar = None
+		try:
+			toolBar = fg.getChild(1).firstChild.firstChild.firstChild.getChild(5)
+		except:
+			pass
+		if toolBar:
+			return True
+		else:
+			return False
 
 	__gestures = {
 	"kb:downArrow": "readNext",
