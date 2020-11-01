@@ -8,6 +8,7 @@
 
 import appModuleHandler
 import addonHandler
+import scriptHandler
 import api
 import controlTypes
 import ui
@@ -28,6 +29,7 @@ class AppModule(appModuleHandler.AppModule):
 		self.alreadySpoken = []
 		self.section = None
 		self.currentParagraph = None
+		self.lastMenuItem = None
 
 	def event_foreground(self, fg, nextHandler):
 		try:
@@ -47,10 +49,7 @@ class AppModule(appModuleHandler.AppModule):
 			self.section = section
 		else:
 			try:
-				try:
-					obj = fg.getChild(1).firstChild.firstChild.firstChild.getChild(2)
-				except IndexError: # It's probably full screen
-					obj = fg.firstChild.firstChild.firstChild.firstChild.getChild(2)
+				obj = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(2)
 			except:
 				speakText(_("Text not found"))
 				return
@@ -79,8 +78,8 @@ class AppModule(appModuleHandler.AppModule):
 			gesture.send()
 			return
 		if self.isToolBarOpen():
-			KeyboardInputGesture.fromName("escape").send()
-			sleep(0.05)
+			self.gotoMenuItem(+1)
+			return
 		obj = self.currentParagraph.simpleNext if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
 			speakText(obj.name)
@@ -97,8 +96,8 @@ class AppModule(appModuleHandler.AppModule):
 			gesture.send()
 			return
 		if self.isToolBarOpen():
-			KeyboardInputGesture.fromName("escape").send()
-			sleep(0.05)
+			self.gotoMenuItem(-1)
+			return
 		obj = self.currentParagraph.simplePrevious if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
 			speakText(obj.name)
@@ -114,6 +113,42 @@ class AppModule(appModuleHandler.AppModule):
 		gesture.send()
 		sleep(0.15)
 		self.readPage()
+
+	def script_toolBar(self, gesture):
+		gesture.send()
+		sleep(0.15)
+		if self.isToolBarOpen():
+			speakText(_("menu"))
+			self.gotoMenuItem()
+
+	def gotoMenuItem(self, itemIndex=0):
+		fg = api.getForegroundObject()
+		toolBar = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(5)
+		toolBarMenu = list(filter(lambda o: o.role == controlTypes.ROLE_STATICTEXT and o.name and o.parent.role == controlTypes.ROLE_LISTITEM and controlTypes.STATE_OFFSCREEN not in o.states, toolBar.recursiveDescendants))
+		if itemIndex > 0 or itemIndex < 0:
+			try:
+				itemIndex = toolBarMenu.index(self.lastMenuItem)+itemIndex
+				if itemIndex >= len(toolBarMenu): itemIndex = 0
+			except ValueError:
+				menuItem=0
+		item = toolBarMenu[itemIndex]
+		self.lastMenuItem = item
+		api.setNavigatorObject(item)
+		if item.parent.name:
+			speakText(item.parent.name)
+		else:
+			speakText(item.name)
+
+	def script_toggleMenu(self, gesture):
+		if self.isToolBarOpen():
+			if self.currentParagraph:
+				api.setNavigatorObject(self.currentParagraph)
+				speakText(self.currentParagraph.name)
+			else:
+				speakText(_("Text"))
+			gesture.send()
+			return
+		gesture.send()
 
 	def script_startPage(self, gesture):
 		self.readPage(0)
@@ -132,7 +167,7 @@ class AppModule(appModuleHandler.AppModule):
 		fg = api.getForegroundObject()
 		toolBar = None
 		try:
-			toolBar = fg.getChild(1).firstChild.firstChild.firstChild.getChild(5)
+			toolBar = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(5)
 		except:
 			pass
 		if toolBar:
@@ -140,11 +175,22 @@ class AppModule(appModuleHandler.AppModule):
 		else:
 			return False
 
+	def getWebViewPanel(self):
+		obj = None
+		fg = api.getForegroundObject()
+		for child in fg.children:
+			if child.UIAElement.currentClassName == "WebView":
+				obj = child
+				break
+		return obj
+		
 	__gestures = {
 	"kb:downArrow": "readNext",
 	"kb:upArrow": "readPrevious",
 	"kb:pageUp": "read",
 	"kb:pageDown": "read",
 	"kb:control+pageUp": "read",
-	"kb:control+pageDown": "read"
+	"kb:control+pageDown": "read",
+	"kb:applications": "toolBar",
+	"kb:escape": "toggleMenu"
 	}
