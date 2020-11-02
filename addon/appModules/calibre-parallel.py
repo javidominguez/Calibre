@@ -14,8 +14,9 @@ import controlTypes
 import ui
 import winUser
 from time import sleep
-from speech import speakText
+from speech import speakText, speakObject
 from keyboardHandler import KeyboardInputGesture
+from NVDAObjects.UIA import UIA
 
 addonHandler.initTranslation()
 
@@ -29,7 +30,11 @@ class AppModule(appModuleHandler.AppModule):
 		self.alreadySpoken = []
 		self.section = None
 		self.currentParagraph = None
-		self.lastMenuItem = None
+		self.lastToolbarItem = None
+
+	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
+		if (obj.role == controlTypes.ROLE_LISTITEM and controlTypes.STATE_SELECTABLE in obj.states and obj.childCount > 0): #  or (obj.role == controlTypes.ROLE_STATICTEXT and obj.name and obj.container.role == controlTypes.ROLE_LISTITEM):
+			clsList.insert(0, ToolBarButton)
 
 	def event_foreground(self, fg, nextHandler):
 		try:
@@ -73,13 +78,22 @@ class AppModule(appModuleHandler.AppModule):
 			textOnScreen[direction].scrollIntoView
 			self.alreadySpoken = textOnScreen
 
+	def script_nextToolbarItem(self, gesture):
+		if self.isToolBarOpen():
+			self.gotoToolbarItem(+1)
+			return
+		elif api.getNavigatorObject() == self.currentParagraph:
+			ui.message(_("Tool bar is hidden"))
+			return
+		gesture.send()
+
 	def script_readNext(self, gesture):
 		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
 			gesture.send()
 			return
 		if self.isToolBarOpen():
-			self.gotoMenuItem(+1)
-			return
+			KeyboardInputGesture.fromName("escape").send()
+			sleep(0.10)
 		obj = self.currentParagraph.simpleNext if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
 			speakText(obj.name)
@@ -91,13 +105,22 @@ class AppModule(appModuleHandler.AppModule):
 			sleep(0.15)
 			self.readPage(0)
 
+	def script_previousToolbarItem(self, gesture):
+		if self.isToolBarOpen():
+			self.gotoToolbarItem(-1)
+			return
+		elif api.getNavigatorObject() == self.currentParagraph:
+			ui.message(_("Tool bar is hidden"))
+			return
+		gesture.send()
+
 	def script_readPrevious(self, gesture):
 		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
 			gesture.send()
 			return
 		if self.isToolBarOpen():
-			self.gotoMenuItem(-1)
-			return
+			KeyboardInputGesture.fromName("escape").send()
+			sleep(0.10)
 		obj = self.currentParagraph.simplePrevious if self.currentParagraph else None
 		if obj and obj in self.alreadySpoken:
 			speakText(obj.name)
@@ -118,28 +141,34 @@ class AppModule(appModuleHandler.AppModule):
 		gesture.send()
 		sleep(0.15)
 		if self.isToolBarOpen():
-			speakText(_("menu"))
-			self.gotoMenuItem()
+			speakText(_("Tool bar"))
+			self.gotoToolbarItem()
 
-	def gotoMenuItem(self, itemIndex=0):
+	def gotoToolbarItem(self, itemIndex=0):
 		fg = api.getForegroundObject()
-		toolBar = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(5)
-		toolBarMenu = list(filter(lambda o: o.role == controlTypes.ROLE_STATICTEXT and o.name and o.parent.role == controlTypes.ROLE_LISTITEM and controlTypes.STATE_OFFSCREEN not in o.states, toolBar.recursiveDescendants))
+		try:
+			toolBar = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(5)
+		except:
+			return
+		toolBarMenu = list(filter(lambda o: o.role in [
+		controlTypes.ROLE_BUTTON,
+		controlTypes.ROLE_LINK,
+		controlTypes.ROLE_EDITABLETEXT
+		] and controlTypes.STATE_OFFSCREEN not in o.states, toolBar.recursiveDescendants))
 		if itemIndex > 0 or itemIndex < 0:
 			try:
-				itemIndex = toolBarMenu.index(self.lastMenuItem)+itemIndex
+				itemIndex = toolBarMenu.index(self.lastToolbarItem)+itemIndex
 				if itemIndex >= len(toolBarMenu): itemIndex = 0
 			except ValueError:
 				menuItem=0
 		item = toolBarMenu[itemIndex]
-		self.lastMenuItem = item
+		self.lastToolbarItem = item
 		api.setNavigatorObject(item)
-		if item.parent.name:
-			speakText(item.parent.name)
-		else:
-			speakText(item.name)
+		if item.role == controlTypes.ROLE_EDITABLETEXT:
+			self.mouseClick(item)
+		speakObject(item)
 
-	def script_toggleMenu(self, gesture):
+	def script_toggleToolbar(self, gesture):
 		if self.isToolBarOpen():
 			if self.currentParagraph:
 				api.setNavigatorObject(self.currentParagraph)
@@ -147,6 +176,18 @@ class AppModule(appModuleHandler.AppModule):
 			else:
 				speakText(_("Text"))
 			gesture.send()
+			return
+		gesture.send()
+
+	def script_enter(self, gesture):
+		if self.isToolBarOpen() and api.getNavigatorObject() == self.lastToolbarItem:
+			self.mouseClick(self.lastToolbarItem)
+			sleep(0.1)
+			obj = self.getWebViewPanel().firstChild.firstChild.firstChild.getChild(5).getChild(1).firstChild
+			if obj:
+				speakText(obj.name)
+				# api.setNavigatorObject(obj)
+				self.gotoToolbarItem()
 			return
 		gesture.send()
 
@@ -192,5 +233,18 @@ class AppModule(appModuleHandler.AppModule):
 	"kb:control+pageUp": "read",
 	"kb:control+pageDown": "read",
 	"kb:applications": "toolBar",
-	"kb:escape": "toggleMenu"
+	"kb:escape": "toggleToolbar",
+	"kb:enter": "enter",
+	"kb:tab": "nextToolbarItem",
+	"kb:shift+tab": "previousToolbarItem"
 	}
+
+class ToolBarButton(UIA):
+
+	def initOverlayClass(self):
+		self.role = controlTypes.ROLE_BUTTON
+		if not self.name:
+			names = []
+			for o in self.recursiveDescendants:
+				if o.name: names.append(o.name)
+			self.name = " ".join(names)

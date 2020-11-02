@@ -34,7 +34,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description" : _("Provides some accessibility enhancements for the interface of Calibre eBook Management"),
 	# version
-	"addon_version" : "dev201101",
+	"addon_version" : "dev201102",
 	# Author(s)
 	"addon_author" : u"Javi Dominguez <fjavids@gmail.com>",
 	# URL for the add-on documentation support
