@@ -329,13 +329,13 @@ class UIAUnfocusableToolBar(UIA):
 	def script_menu(self, gesture):
 		obj = api.getNavigatorObject()
 		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states and obj.role != controlTypes.ROLE_CHECKBOX:
-			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
+			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, KeyboardInputGesture.fromName("nvda+numpadDivide"))
 			pauseSpeech(True)
 			x, y = winUser.getCursorPos()
 			if x >= obj.location[0]:
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
-				scriptHandler.executeScript(self.script_exit, None)
+				scriptHandler.executeScript(self.script_exit, KeyboardInputGesture.fromName("escape"))
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
 				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))
