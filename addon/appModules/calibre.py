@@ -43,6 +43,12 @@ class AppModule(appModuleHandler.AppModule):
 	# TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
 
+	def _get_productName(self):
+		return "Calibre"
+
+	def _get_productVersion(self):
+		return _("unknown")
+
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.lastBooksCount = []
@@ -109,6 +115,18 @@ class AppModule(appModuleHandler.AppModule):
 				pass
 			if obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
 				clsList.insert(0, UIAUnfocusableToolBar)
+			if obj.UIAElement.currentClassName == "BookInfo":
+				clsList.insert(0, BookInfoDialog)
+			try:
+				if obj.parent.parent.parent.UIAElement.currentClassName == "BookInfo":
+					if obj.UIAElement.currentClassName == "Details":
+						clsList.insert(0, BookInfoDetails)
+					else:
+						clsList.insert(0, BookInfoWindowItem)
+				elif obj.UIAElement.currentClassName == "Cover":
+					clsList.insert(0, BookInfoCover)
+			except AttributeError:
+				pass
 
 	def event_gainFocus(self, obj, nextHandler):
 		# Removes the HTML tags that appear in the name and description of some objects
@@ -129,6 +147,9 @@ class AppModule(appModuleHandler.AppModule):
 		nextHandler()
 
 	def event_focusEntered(self, obj, nextHandler):
+		if obj.APIClass == UIA and obj.UIAElement.currentClassName == "BookInfo":
+			api.setForegroundObject(obj)
+			nextHandler()
 		if obj.role != controlTypes.ROLE_SPLITBUTTON:
 			nextHandler()
 

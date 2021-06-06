@@ -16,7 +16,8 @@ import ui
 import braille
 import globalCommands
 import scriptHandler
-from NVDAObjects.UIA import UIA, UIColumnHeader, ComboBoxWithoutValuePattern, UIItem
+from NVDAObjects import NVDAObject
+from NVDAObjects.UIA import UIA, UIColumnHeader, ComboBoxWithoutValuePattern, UIItem, Dialog
 import os.path
 import appModules
 appModules.__path__.insert(0, os.path.abspath(os.path.dirname(__file__))) 
@@ -29,7 +30,7 @@ import textInfos
 from tones import beep
 from os import startfile
 import winUser
-from speech import speakObject, speakText, pauseSpeech
+from speech import speakObject, speakText, pauseSpeech, cancelSpeech, speakTextInfo
 from keyboardHandler import KeyboardInputGesture
 from time import sleep
 import config
@@ -372,3 +373,124 @@ class UIAUnfocusableToolBar(UIA):
 	"kb:applications": "menu"
 	}
 
+class BookInfoDialog(Dialog):
+
+	def event_gainFocus(self):
+		pass
+
+	def event_foreground(self):
+		self.reportFocus()
+
+	def _get_description(self):
+		return
+		# Pending to decide
+		superDesc = super(Dialog, self).description
+		if superDesc and not superDesc.isspace():
+			return "\n".join(superDesc.split("\ufdd0"))
+
+class BookInfoWindowItem(UIA):
+
+	def script_settings(self, gesture):
+		try:
+			tree = self.parent.recursiveDescendants
+		except:
+			raise RuntimeError("Unable to get the object tree")
+			return
+		obj = tree.__next__()
+		while True:
+			try:
+				if obj.UIAElement.currentClassName == "QLabel":
+					winUser.setCursorPos(obj.location.left+2, obj.location.top+2)
+					if obj == api.getDesktopObject().objectFromPoint(obj.location.left+2, obj.location.top+2):
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,None,None)
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,1,None,None)
+					else:
+						raise RuntimeError("Unable to click in settings label")
+					break
+				obj = tree.__next__()
+			except StopIteration:
+				raise RuntimeError("Settings label not found")
+				break
+
+	__gestures = {
+	"kb:F2": "settings"
+	}
+
+class BookInfoDetails(BookInfoWindowItem):
+
+	def initOverlayClass(self):
+		self.role = controlTypes.ROLE_EDITABLETEXT
+		self.reviewPosition = None
+
+	def event_gainFocus(self):
+		res = 1
+		while res:
+			res = self.review(textInfos.UNIT_LINE, 1)
+		self.review(textInfos.UNIT_PAGE, -1, False)
+
+	def event_loseFocus(self):
+		cancelSpeech()
+
+	def script_skip(self, gesture):
+		gesture.send()
+		focusObject=api.getFocusObject()
+		if isinstance(focusObject,NVDAObject):
+			speakObject(focusObject, reason=controlTypes.REASON_CHANGE if hasattr(controlTypes, "REASON_CHANGE") else controlTypes.OutputReason.CHANGE)
+
+	def script_nextChar(self, gesture):
+		self.review(textInfos.UNIT_CHARACTER, 1)
+
+	def script_previousChar(self, gesture):
+		self.review(textInfos.UNIT_CHARACTER, -1)
+
+	def script_nextWord(self, gesture):
+		self.review(textInfos.UNIT_WORD, 1)
+
+	def script_previousWord(self, gesture):
+		self.review(textInfos.UNIT_WORD, -1)
+
+	def script_nextLine(self, gesture):
+		gesture.send()
+		self.review(textInfos.UNIT_LINE, 1)
+
+	def script_previousLine(self, gesture):
+		gesture.send()
+		self.review(textInfos.UNIT_LINE, -1)
+
+	def review(self, unit, direction, verbose=True):
+		reviewOldMode = api.review.getCurrentMode()
+		api.review.setCurrentMode("object")
+		if self.reviewPosition: api.setReviewPosition(self.reviewPosition)
+		info= api.getReviewPosition().copy()
+		info.expand(unit)
+		info.collapse()
+		info.move(unit, direction)
+		api.setReviewPosition(info)
+		info.expand(unit)
+		if verbose: speakTextInfo(info,unit=unit,reason=controlTypes.REASON_CARET if hasattr(controlTypes, "REASON_CARET") else controlTypes.OutputReason.CARET)
+		self.reviewPosition = api.getReviewPosition()
+		api.review.setCurrentMode(reviewOldMode)
+		return info.move(unit, 1)
+
+	__gestures = {
+	"kb:tab": "skip",
+	"kb:shift+tab": "skip",
+	"kb:rightArrow": "nextChar",
+	"kb:leftArrow": "previousChar",
+	"kb:control+rightArrow": "nextWord",
+	"kb:control+leftArrow": "previousWord",
+	"kb:downArrow": "nextLine",
+		"kb:upArrow": "previousLine"
+	}
+
+class BookInfoCover(BookInfoWindowItem):
+
+	def initOverlayClass(self):
+		self.role = controlTypes.ROLE_GRAPHIC
+		self.name = _("Cover")
+
+	def event_gainFocus(self):
+		description = self.description
+		self.description = ""
+		self.reportFocus()
+		self.description = description
