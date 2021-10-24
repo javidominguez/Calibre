@@ -11,6 +11,14 @@ import addonHandler
 import scriptHandler
 import api
 import controlTypes
+# controlTypes module compatibility with old versions of NVDA
+if not hasattr(controlTypes, "Role"):
+	setattr(controlTypes, Role, type('Enum', (), dict(
+	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
+if not hasattr(controlTypes, "State"):
+	setattr(controlTypes, State, type('Enum', (), dict(
+	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
+# End of compatibility fixes
 import ui
 import winUser
 from time import sleep
@@ -33,7 +41,7 @@ class AppModule(appModuleHandler.AppModule):
 		self.lastToolbarItem = None
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
-		if (obj.role == controlTypes.ROLE_LISTITEM and controlTypes.STATE_SELECTABLE in obj.states and obj.childCount > 0): #  or (obj.role == controlTypes.ROLE_STATICTEXT and obj.name and obj.container.role == controlTypes.ROLE_LISTITEM):
+		if (obj.role == controlTypes.Role.LISTITEM and controlTypes.State.SELECTABLE in obj.states and obj.childCount > 0): #  or (obj.role == controlTypes.Role.STATICTEXT and obj.name and obj.container.role == controlTypes.Role.LISTITEM):
 			clsList.insert(0, ToolBarButton)
 
 	def event_foreground(self, fg, nextHandler):
@@ -58,7 +66,7 @@ class AppModule(appModuleHandler.AppModule):
 			except:
 				speakText(_("Text not found"))
 				return
-		textOnScreen = filter(lambda o: o.role == controlTypes.ROLE_STATICTEXT and controlTypes.STATE_OFFSCREEN not in o.states and obj not in self.alreadySpoken, obj.recursiveDescendants)
+		textOnScreen = filter(lambda o: o.role == controlTypes.Role.STATICTEXT and controlTypes.State.OFFSCREEN not in o.states and obj not in self.alreadySpoken, obj.recursiveDescendants)
 		if textOnScreen:
 			textOnScreen = list(textOnScreen)
 			if textOnScreen == self.alreadySpoken:
@@ -88,7 +96,7 @@ class AppModule(appModuleHandler.AppModule):
 		gesture.send()
 
 	def script_readNext(self, gesture):
-		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
+		if api.getFocusObject().role in [controlTypes.Role.POPUPMENU, controlTypes.Role.MENUITEM]:
 			gesture.send()
 			return
 		if self.isToolBarOpen():
@@ -115,7 +123,7 @@ class AppModule(appModuleHandler.AppModule):
 		gesture.send()
 
 	def script_readPrevious(self, gesture):
-		if api.getFocusObject().role in [controlTypes.ROLE_POPUPMENU, controlTypes.ROLE_MENUITEM]:
+		if api.getFocusObject().role in [controlTypes.Role.POPUPMENU, controlTypes.Role.MENUITEM]:
 			gesture.send()
 			return
 		if self.isToolBarOpen():
@@ -151,10 +159,10 @@ class AppModule(appModuleHandler.AppModule):
 		except:
 			return
 		toolBarMenu = list(filter(lambda o: o.role in [
-		controlTypes.ROLE_BUTTON,
-		controlTypes.ROLE_LINK,
-		controlTypes.ROLE_EDITABLETEXT
-		] and controlTypes.STATE_OFFSCREEN not in o.states, toolBar.recursiveDescendants))
+		controlTypes.Role.BUTTON,
+		controlTypes.Role.LINK,
+		controlTypes.Role.EDITABLETEXT
+		] and controlTypes.State.OFFSCREEN not in o.states, toolBar.recursiveDescendants))
 		if itemIndex > 0 or itemIndex < 0:
 			try:
 				itemIndex = toolBarMenu.index(self.lastToolbarItem)+itemIndex
@@ -164,7 +172,7 @@ class AppModule(appModuleHandler.AppModule):
 		item = toolBarMenu[itemIndex]
 		self.lastToolbarItem = item
 		api.setNavigatorObject(item)
-		if item.role == controlTypes.ROLE_EDITABLETEXT:
+		if item.role == controlTypes.Role.EDITABLETEXT:
 			self.mouseClick(item)
 		speakObject(item)
 
@@ -242,7 +250,7 @@ class AppModule(appModuleHandler.AppModule):
 class ToolBarButton(UIA):
 
 	def initOverlayClass(self):
-		self.role = controlTypes.ROLE_BUTTON
+		self.role = controlTypes.Role.BUTTON
 		if not self.name:
 			names = []
 			for o in self.recursiveDescendants:

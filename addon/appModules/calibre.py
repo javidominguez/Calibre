@@ -11,6 +11,14 @@ import appModuleHandler
 import addonHandler
 import api
 import controlTypes
+# controlTypes module compatibility with old versions of NVDA
+if not hasattr(controlTypes, "Role"):
+	setattr(controlTypes, Role, type('Enum', (), dict(
+	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
+if not hasattr(controlTypes, "State"):
+	setattr(controlTypes, State, type('Enum', (), dict(
+	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
+# End of compatibility fixes
 import ui
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible
@@ -67,29 +75,29 @@ class AppModule(appModuleHandler.AppModule):
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
 		if obj.APIClass == IAccessible:
-			if obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+			if obj.role == controlTypes.Role.TABLECOLUMNHEADER:
 				if obj.location[2] == 0:
 					# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
 					# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
 					obj.description = _("(hidden)")
 				clsList.insert(0, EnhancedHeader)
-			if obj.role == controlTypes.ROLE_EDITABLETEXT and obj.parent.role == controlTypes.ROLE_COMBOBOX and obj.previous.role == controlTypes.ROLE_LIST:
+			if obj.role == controlTypes.Role.EDITABLETEXT and obj.parent.role == controlTypes.Role.COMBOBOX and obj.previous.role == controlTypes.Role.LIST:
 				obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
 				clsList.insert(0, TextInComboBox)
-			if obj.role == controlTypes.ROLE_COMBOBOX and obj.childCount == 2:
+			if obj.role == controlTypes.Role.COMBOBOX and obj.childCount == 2:
 					clsList.insert(0, ComboBox)
-			if obj.role == controlTypes.ROLE_TABLECELL:
+			if obj.role == controlTypes.Role.TABLECELL:
 				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 				clsList.insert(0, TableCell)
 			try:
-				if obj.role == controlTypes.ROLE_PANE and obj.IAccessibleRole == controlTypes.ROLE_MENUBAR and obj.parent.IAccessibleRole == 1050:
+				if obj.role == controlTypes.Role.PANE and obj.IAccessibleRole == controlTypes.Role.MENUBAR and obj.parent.IAccessibleRole == 1050:
 					clsList.insert(0, preferencesPane)
 			except AttributeError:
 				pass
-			if obj.role == controlTypes.ROLE_TOOLBAR and not obj.isFocusable:
+			if obj.role == controlTypes.Role.TOOLBAR and not obj.isFocusable:
 				clsList.insert(0, UnfocusableToolBar)
 		if obj.APIClass == UIA:
-			if obj.role == controlTypes.ROLE_HEADER:
+			if obj.role == controlTypes.Role.HEADER:
 				if obj.location[2] == 0:
 					# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
 					# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
@@ -100,7 +108,7 @@ class AppModule(appModuleHandler.AppModule):
 				clsList.insert(0, UIATextInComboBox)
 			if obj.UIAElement.currentClassName == "SearchBox2":
 				clsList.insert(0, UIAComboBox)
-			if obj.role == controlTypes.ROLE_DATAITEM:
+			if obj.role == controlTypes.Role.DATAITEM:
 				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 				clsList.insert(0, UIATableCell)
 			try:
@@ -137,10 +145,10 @@ class AppModule(appModuleHandler.AppModule):
 		# Label correctly the search box
 		try:
 			if obj.APIClass == IAccessible:
-				if obj.parent.firstChild == api.getForegroundObject().getChild(2).getChild(0).getChild(0) and obj.simpleNext.role == controlTypes.ROLE_BUTTON:
+				if obj.parent.firstChild == api.getForegroundObject().getChild(2).getChild(0).getChild(0) and obj.simpleNext.role == controlTypes.Role.BUTTON:
 					obj.name = obj.simpleNext.name
 			if obj.APIClass == UIA:
-				if obj.UIAElement.currentClassName == "SearchBox2" and obj.simpleNext.role == controlTypes.ROLE_BUTTON:
+				if obj.UIAElement.currentClassName == "SearchBox2" and obj.simpleNext.role == controlTypes.Role.BUTTON:
 					obj.name = obj.simpleNext.name
 		except:
 			pass
@@ -150,7 +158,7 @@ class AppModule(appModuleHandler.AppModule):
 		if obj.APIClass == UIA and obj.UIAElement.currentClassName == "BookInfo":
 			api.setForegroundObject(obj)
 			nextHandler()
-		if obj.role != controlTypes.ROLE_SPLITBUTTON:
+		if obj.role != controlTypes.Role.SPLITBUTTON:
 			nextHandler()
 
 	def event_foreground(self, obj, nextHandler):
@@ -161,7 +169,7 @@ class AppModule(appModuleHandler.AppModule):
 		# get calibre version
 		if not self.productVersion and not self.productName:
 			try:
-				statusBar = filter(lambda o: o.role == controlTypes.ROLE_STATUSBAR, obj.children)[0]
+				statusBar = filter(lambda o: o.role == controlTypes.Role.STATUSBAR, obj.children)[0]
 				statusBarText = " ".join([obj.name for obj in statusBar.children])
 				productInfo = re.search(r"calibre \d\.\d+\.\d+", statusBarText)
 				if productInfo:
@@ -171,7 +179,7 @@ class AppModule(appModuleHandler.AppModule):
 		nextHandler()
 
 	def event_nameChange(self, obj, nextHandler):
-		if obj.role == controlTypes.ROLE_STATICTEXT and obj.parent.role == controlTypes.ROLE_STATUSBAR:
+		if obj.role == controlTypes.Role.STATICTEXT and obj.parent.role == controlTypes.Role.STATUSBAR:
 			try:
 				booksCount = self._getBooksCount().split(",")
 			except:
@@ -187,8 +195,8 @@ class AppModule(appModuleHandler.AppModule):
 		nextHandler()
 
 	def event_stateChange(self, obj, nextHandler):
-		if obj.UIAElement.currentClassName == "QToolBarExtension" and api.getFocusObject().role == controlTypes.ROLE_TOOLBAR:
-			if controlTypes.STATE_CHECKED in obj.states:
+		if obj.UIAElement.currentClassName == "QToolBarExtension" and api.getFocusObject().role == controlTypes.Role.TOOLBAR:
+			if controlTypes.State.CHECKED in obj.states:
 				ui.message(_("Expanded toolbar"))
 			else:
 				ui.message(_("Collapsed toolbar"))
@@ -212,7 +220,7 @@ class AppModule(appModuleHandler.AppModule):
 		except:
 			pass
 		else:
-			if controlTypes.STATE_INVISIBLE in obj.states:
+			if controlTypes.State.INVISIBLE in obj.states:
 				ui.message(_(
 				# TRANSLATORS: message shown when search bar is not visible, change the keystroke to show search bar for the corresponding in your application
 				"The search bar is not visible. Press shift+alt+f to show it."))
@@ -223,7 +231,7 @@ class AppModule(appModuleHandler.AppModule):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
 		try:
-			toolBar = filter(lambda o: o.role == controlTypes.ROLE_TOOLBAR, fg.children)[0]
+			toolBar = filter(lambda o: o.role == controlTypes.Role.TOOLBAR, fg.children)[0]
 			toolBar.show()
 		except:
 			# TRANSLATORS: Message shown when the object is not found
@@ -240,7 +248,7 @@ class AppModule(appModuleHandler.AppModule):
 	def _getBooksCount(self):
 		fg = api.getForegroundObject()
 		try:
-			statusBar = filter(lambda o: o.role == controlTypes.ROLE_STATUSBAR, fg.children)[0]
+			statusBar = filter(lambda o: o.role == controlTypes.Role.STATUSBAR, fg.children)[0]
 		except IndexError:
 			raise Exception("Filter has failed; statusBar not found")
 		obj = statusBar.firstChild
