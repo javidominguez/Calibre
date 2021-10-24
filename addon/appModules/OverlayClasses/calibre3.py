@@ -14,9 +14,9 @@ import api
 import controlTypes
 # controlTypes module compatibility with old versions of NVDA
 if not hasattr(controlTypes, "Role"):
-	setattr(controlTypes, Role, type('Enum', (), dict(
+	setattr(controlTypes, "Role", type('Enum', (), dict(
 	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
-	setattr(controlTypes, State, type('Enum', (), dict(
+	setattr(controlTypes, "State", type('Enum', (), dict(
 	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
 	setattr(controlTypes, "role", type("role", (), {"roleLabels": controlTypes.roleLabels}))
 # End of compatibility fixes
