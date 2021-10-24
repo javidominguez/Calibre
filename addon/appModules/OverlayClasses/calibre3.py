@@ -12,6 +12,14 @@ import appModuleHandler
 import addonHandler
 import api
 import controlTypes
+# controlTypes module compatibility with old versions of NVDA
+if not hasattr(controlTypes, "Role"):
+	setattr(controlTypes, Role, type('Enum', (), dict(
+	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
+	setattr(controlTypes, State, type('Enum', (), dict(
+	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
+	setattr(controlTypes, "role", type("role", (), {"roleLabels": controlTypes.role._roleLabels}))
+# End of compatibility fixes
 import ui
 import braille
 import globalCommands
@@ -103,9 +111,9 @@ class TableCell(IAccessible):
 			return self.appModule.columnTitles
 		titles = []
 		obj = self.parent.firstChild
-		while obj.role != controlTypes.ROLE_TABLECOLUMNHEADER and obj.role != controlTypes.ROLE_TABLECELL:
+		while obj.role != controlTypes.Role.TABLECOLUMNHEADER and obj.role != controlTypes.Role.TABLECELL:
 			obj = obj.simpleNext
-		while obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+		while obj.role == controlTypes.Role.TABLECOLUMNHEADER:
 			titles.append(obj.name)
 			obj = obj.simpleNext
 		# Stores this information in appModule to not have to search it again each time a cell is focused, which would cause a slowdown
@@ -129,7 +137,7 @@ class TableCell(IAccessible):
 	def event_gainFocus(self):
 		if winUser.getKeyState(KeyboardInputGesture.fromName("Control").vkCode) in (0,1):
 			try:
-				self.states.remove(controlTypes.STATE_SELECTED)
+				self.states.remove(controlTypes.State.SELECTED)
 			except KeyError:
 				pass
 		if not self.name:
@@ -150,9 +158,9 @@ class TableCell(IAccessible):
 		config.conf['documentFormatting']['reportTableHeaders'] = self.reportHeaders
 
 	def script_headerOptions(self, gesture):
-		if self.parent.simpleParent.role == controlTypes.ROLE_DIALOG: return
+		if self.parent.simpleParent.role == controlTypes.Role.DIALOG: return
 		obj = self.parent.getChild(1)
-		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_TABLECOLUMNHEADER:
+		while obj.name != self.columnHeaderText and obj.role == controlTypes.Role.TABLECOLUMNHEADER:
 			obj = obj.next
 		api.setNavigatorObject(obj)
 		speakObject(obj)
@@ -163,7 +171,7 @@ class TableCell(IAccessible):
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
 
 	def script_bookInfo(self, gesture):
-		if api.getForegroundObject().role == controlTypes.ROLE_DIALOG:
+		if api.getForegroundObject().role == controlTypes.Role.DIALOG:
 			gesture.send()
 			return
 		title = self.getDataFromColumn(1)
@@ -215,12 +223,12 @@ class TableCell(IAccessible):
 		if self.columnHeaderText.lower() == columnName.lower():
 			return self.name
 		obj = self.previous
-		while obj.role == controlTypes.ROLE_TABLECELL:
+		while obj.role == controlTypes.Role.TABLECELL:
 			if obj.columnHeaderText.lower() == columnName.lower():
 				return obj.name
 			obj = obj.previous
 		obj = self.next
-		while obj.role == controlTypes.ROLE_TABLECELL:
+		while obj.role == controlTypes.Role.TABLECELL:
 			if obj.columnHeaderText.lower() == columnName.lower():
 				return obj.name
 			obj = obj.next
@@ -231,10 +239,10 @@ class TableCell(IAccessible):
 		while obj:
 			if obj.isFocusable:
 				api.setFocusObject(obj)
-				if controlTypes.STATE_FOCUSED in obj.states: return # The object has received the focus correctly
+				if controlTypes.State.FOCUSED in obj.states: return # The object has received the focus correctly
 			obj = obj.next
 		# Has not been able to get out of the table
-		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+		if self.container.simpleParent.role == controlTypes.Role.DIALOG:
 			# If we are in a dialogue, focus on the top panel
 			api.setNavigatorObject(self.focusableContainer)
 			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
@@ -247,9 +255,9 @@ class TableCell(IAccessible):
 		while obj:
 			if obj.isFocusable:
 				api.setFocusObject(obj)
-				if controlTypes.STATE_FOCUSED in obj.states: return
+				if controlTypes.State.FOCUSED in obj.states: return
 			obj = obj.previous
-		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+		if self.container.simpleParent.role == controlTypes.Role.DIALOG:
 			api.setNavigatorObject(self.focusableContainer)
 			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
 			pauseSpeech(True)
@@ -282,23 +290,23 @@ class preferencesPane(LayeredPane):
 		isMultitab = False
 		ch = self.simpleFirstChild
 		while ch:
-			if ch.IAccessibleRole == controlTypes.ROLE_TAB:
+			if ch.IAccessibleRole == controlTypes.Role.TAB:
 				isMultitab = True
 				break
 			ch = ch.next
 		try:
-			if isMultitab: self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.ROLE_HEADING1 and i.next.IAccessibleRole == controlTypes.ROLE_TAB, self.recursiveDescendants)
+			if isMultitab: self.tabItems = filter(lambda i: i.IAccessibleRole == controlTypes.Role.HEADING1 and i.next.IAccessibleRole == controlTypes.Role.TAB, self.recursiveDescendants)
 		except AttributeError:
 			self.tabItems = []
 		if self.tabItems:
-			self.role = controlTypes.ROLE_TAB
+			self.role = controlTypes.Role.TAB
 			fg = api.getForegroundObject()
 			if not hasattr(fg, "tabIndex"):
 				setattr(fg, "tabIndex", 0)
 			self.__updateTab(fg.tabIndex)
 		else:
 			try:
-				if self.simpleFirstChild.IAccessibleRole == controlTypes.ROLE_HEADING1:
+				if self.simpleFirstChild.IAccessibleRole == controlTypes.Role.HEADING1:
 					self.name = self.simpleFirstChild.name
 			except AttributeError:
 				pass
@@ -382,7 +390,7 @@ class UnfocusableToolBar(IAccessible):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.next if obj.next else self.firstChild
-			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+			while obj.actionCount == 0 and obj.role != controlTypes.Role.BUTTON:
 				obj = obj.next if obj.next else self.firstChild
 			self._setFakeFocus(obj)
 		else:
@@ -392,7 +400,7 @@ class UnfocusableToolBar(IAccessible):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.previous if obj.previous else self.lastChild
-			while obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON:
+			while obj.actionCount == 0 and obj.role != controlTypes.Role.BUTTON:
 				obj = obj.previous if obj.previous else self.lastChild
 			self._setFakeFocus(obj)
 		else:
@@ -410,7 +418,7 @@ class UnfocusableToolBar(IAccessible):
 
 	def script_menu(self, gesture):
 		obj = api.getNavigatorObject()
-		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states:
+		if obj.parent == self and controlTypes.State.INVISIBLE not in obj.states:
 			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, None)
 			pauseSpeech(True)
 			x, y = winUser.getCursorPos()
@@ -419,7 +427,7 @@ class UnfocusableToolBar(IAccessible):
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
-				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))
+				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.role._roleLabels[obj.role]))
 		else:
 			beep(200,80)
 
@@ -436,8 +444,8 @@ class UnfocusableToolBar(IAccessible):
 
 	def _setFakeFocus(self, obj):
 		api.setNavigatorObject(obj)
-		if controlTypes.STATE_INVISIBLE in obj.states:
-			obj.states.remove(controlTypes.STATE_INVISIBLE )
+		if controlTypes.State.INVISIBLE in obj.states:
+			obj.states.remove(controlTypes.State.INVISIBLE )
 		speakObject(obj)
 
 	__gestures = {

@@ -12,6 +12,14 @@ import appModuleHandler
 import addonHandler
 import api
 import controlTypes
+# controlTypes module compatibility with old versions of NVDA
+if not hasattr(controlTypes, "Role"):
+	setattr(controlTypes, Role, type('Enum', (), dict(
+	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
+	setattr(controlTypes, State, type('Enum', (), dict(
+	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
+	setattr(controlTypes, "role", type("role", (), {"roleLabels": controlTypes.role._roleLabels}))
+# End of compatibility fixes
 import ui
 import braille
 import globalCommands
@@ -102,9 +110,9 @@ class UIATableCell(UIItem):
 			return self.appModule.columnTitles
 		titles = []
 		obj = self.table.firstChild
-		while obj.role != controlTypes.ROLE_HEADER and obj.role != controlTypes.ROLE_DATAITEM:
+		while obj.role != controlTypes.Role.HEADER and obj.role != controlTypes.Role.DATAITEM:
 			obj = obj.simpleNext
-		while obj.role == controlTypes.ROLE_HEADER:
+		while obj.role == controlTypes.Role.HEADER:
 			titles.append(obj.name)
 			obj = obj.simpleNext
 		# Stores this information in appModule to not have to search it again each time a cell is focused, which would cause a slowdown
@@ -128,9 +136,9 @@ class UIATableCell(UIItem):
 		self.appModule.lastColumnHeader = self.columnHeaderText
 
 	def script_headerOptions(self, gesture):
-		if self.parent.simpleParent.role == controlTypes.ROLE_DIALOG: return
+		if self.parent.simpleParent.role == controlTypes.Role.DIALOG: return
 		obj = self.table.simpleFirstChild
-		while obj.name != self.columnHeaderText and obj.role == controlTypes.ROLE_HEADER:
+		while obj.name != self.columnHeaderText and obj.role == controlTypes.Role.HEADER:
 			obj = obj.next
 		api.setNavigatorObject(obj)
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
@@ -145,10 +153,10 @@ class UIATableCell(UIItem):
 		while obj:
 			if obj.isFocusable:
 				api.setFocusObject(obj)
-				if controlTypes.STATE_FOCUSED in obj.states: return # The object has received the focus correctly
+				if controlTypes.State.FOCUSED in obj.states: return # The object has received the focus correctly
 			obj = obj.next
 		# Has not been able to get out of the table
-		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+		if self.container.simpleParent.role == controlTypes.Role.DIALOG:
 			# If we are in a dialogue, focus on the top panel
 			api.setNavigatorObject(self.focusableContainer)
 			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
@@ -161,9 +169,9 @@ class UIATableCell(UIItem):
 		while obj:
 			if obj.isFocusable:
 				api.setFocusObject(obj)
-				if controlTypes.STATE_FOCUSED in obj.states: return
+				if controlTypes.State.FOCUSED in obj.states: return
 			obj = obj.previous
-		if self.container.simpleParent.role == controlTypes.ROLE_DIALOG:
+		if self.container.simpleParent.role == controlTypes.Role.DIALOG:
 			api.setNavigatorObject(self.focusableContainer)
 			scriptHandler.executeScript(globalCommands.commands.script_review_activate, None)
 			pauseSpeech(True)
@@ -203,7 +211,7 @@ class UIApreferencesPane(UIA):
 		except AttributeError:
 			self.tabItems = []
 		if self.tabItems:
-			self.role = controlTypes.ROLE_TAB
+			self.role = controlTypes.Role.TAB
 			fg = api.getForegroundObject()
 			if not hasattr(fg, "tabIndex"):
 				setattr(fg, "tabIndex", 0)
@@ -294,7 +302,7 @@ class UIAUnfocusableToolBar(UIA):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.next if obj.next else self.firstChild
-			while (obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON) or obj.role == controlTypes.ROLE_GROUPING:
+			while (obj.actionCount == 0 and obj.role != controlTypes.Role.BUTTON) or obj.role == controlTypes.Role.GROUPING:
 				obj = obj.next if obj.next else self.firstChild
 			self._setFakeFocus(obj)
 		else:
@@ -304,7 +312,7 @@ class UIAUnfocusableToolBar(UIA):
 		obj = api.getNavigatorObject()
 		if obj.parent == self:
 			obj = obj.previous if obj.previous else self.lastChild
-			while (obj.actionCount == 0 and obj.role != controlTypes.ROLE_BUTTON) or obj.role == controlTypes.ROLE_GROUPING:
+			while (obj.actionCount == 0 and obj.role != controlTypes.Role.BUTTON) or obj.role == controlTypes.Role.GROUPING:
 				obj = obj.previous if obj.previous else self.lastChild
 			self._setFakeFocus(obj)
 		else:
@@ -329,7 +337,7 @@ class UIAUnfocusableToolBar(UIA):
 
 	def script_menu(self, gesture):
 		obj = api.getNavigatorObject()
-		if obj.parent == self and controlTypes.STATE_INVISIBLE not in obj.states and obj.role != controlTypes.ROLE_CHECKBOX:
+		if obj.parent == self and controlTypes.State.INVISIBLE not in obj.states and obj.role != controlTypes.Role.CHECKBOX:
 			scriptHandler.executeScript(globalCommands.commands.script_moveMouseToNavigatorObject, KeyboardInputGesture.fromName("nvda+numpadDivide"))
 			pauseSpeech(True)
 			x, y = winUser.getCursorPos()
@@ -339,7 +347,7 @@ class UIAUnfocusableToolBar(UIA):
 				scriptHandler.executeScript(self.script_exit, KeyboardInputGesture.fromName("escape"))
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
-				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.roleLabels[obj.role]))
+				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.role._roleLabels[obj.role]))
 		else:
 			beep(200,80)
 
@@ -356,8 +364,8 @@ class UIAUnfocusableToolBar(UIA):
 
 	def _setFakeFocus(self, obj):
 		api.setNavigatorObject(obj)
-		if controlTypes.STATE_INVISIBLE in obj.states:
-			obj.states.remove(controlTypes.STATE_INVISIBLE )
+		if controlTypes.State.INVISIBLE in obj.states:
+			obj.states.remove(controlTypes.State.INVISIBLE )
 		speakObject(obj)
 
 	__gestures = {
@@ -419,7 +427,7 @@ class BookInfoWindowItem(UIA):
 class BookInfoDetails(BookInfoWindowItem):
 
 	def initOverlayClass(self):
-		self.role = controlTypes.ROLE_EDITABLETEXT
+		self.role = controlTypes.Role.EDITABLETEXT
 		self.reviewPosition = None
 
 	def event_gainFocus(self):
@@ -486,7 +494,7 @@ class BookInfoDetails(BookInfoWindowItem):
 class BookInfoCover(BookInfoWindowItem):
 
 	def initOverlayClass(self):
-		self.role = controlTypes.ROLE_GRAPHIC
+		self.role = controlTypes.Role.GRAPHIC
 		self.name = _("Cover")
 
 	def event_gainFocus(self):
