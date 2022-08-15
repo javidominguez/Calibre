@@ -57,6 +57,16 @@ class AppModule(appModuleHandler.AppModule):
 	def _get_productVersion(self):
 		return _("unknown")
 
+	def _get_statusBar(self):
+		fg = api.getForegroundObject()
+		if fg.APIClass == UIA:
+			sb = filter(lambda o: o.UIAElement.currentClassName == "StatusBar", fg.children)
+			try:
+				return sb[0]
+			except:
+				pass
+		return None
+
 	def __init__(self, *args, **kwargs):
 		super(AppModule, self).__init__(*args, **kwargs)
 		self.lastBooksCount = []
