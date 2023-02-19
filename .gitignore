@@ -1,0 +1,6 @@
+*.pyc
+*.html
+/.sconsign.dblite
+*.mo
+manifest.ini
+/*.nvda-addon
