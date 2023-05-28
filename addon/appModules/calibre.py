@@ -113,8 +113,8 @@ class AppModule(appModuleHandler.AppModule):
 					# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
 					obj.description = _("(hidden)")
 				clsList.insert(0, UIAEnhancedHeader)
-			if obj.UIAElement.currentClassName == "SearchLineEdit":
-				obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
+			if obj.UIAElement.currentClassName == "SearchLineEdit" and not obj.TextInfo:
+				obj.TextInfo = obj.makeTextInfo(textInfos.POSITION_ALL)
 				clsList.insert(0, UIATextInComboBox)
 			if obj.UIAElement.currentClassName == "SearchBox2":
 				clsList.insert(0, UIAComboBox)
