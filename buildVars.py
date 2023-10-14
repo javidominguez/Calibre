@@ -34,7 +34,7 @@ addon_info = {
 	# Translators: Long description to be shown for this add-on on add-on information from add-ons manager
 	"addon_description" : _("Provides some accessibility enhancements for the interface of Calibre eBook Management"),
 	# version
-	"addon_version" : "2.7.1",
+	"addon_version" : "2024.0.1",
 	# Author(s)
 	"addon_author" : u"Javi Dominguez <fjavids@gmail.com>",
 	# URL for the add-on documentation support
@@ -42,11 +42,11 @@ addon_info = {
 	# File name for the add-on help file.
 	"addon_docFileName" : "readme.html",
 	# Minimum NVDA version supported (e.g. "2018.3")
-	"addon_minimumNVDAVersion" : "2019.3.0",
+	"addon_minimumNVDAVersion" : "2023.1.0",
 	# Last NVDA version supported/tested (e.g. "2018.4", ideally more recent than minimum version)
-	"addon_lastTestedNVDAVersion" : "2023.1.0",
+	"addon_lastTestedNVDAVersion" : "2024.1.0",
 	# Add-on update channel (default is stable or None)
-	"addon_updateChannel" : None
+	"addon_updateChannel" : "dev"
 }
 
 

@@ -5,20 +5,11 @@
 #See the file COPYING.txt for more details.
 #Copyright (C) 2018-2020 Javi Dominguez <fjavids@gmail.com>
 
-from .py3compatibility import *
 from .OverlayClasses import *
 import appModuleHandler
 import addonHandler
 import api
 import controlTypes
-# controlTypes module compatibility with old versions of NVDA
-if not hasattr(controlTypes, "Role"):
-	setattr(controlTypes, Role, type('Enum', (), dict(
-	[(x.split("ROLE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("ROLE_")])))
-if not hasattr(controlTypes, "State"):
-	setattr(controlTypes, State, type('Enum', (), dict(
-	[(x.split("STATE_")[1], getattr(controlTypes, x)) for x in dir(controlTypes) if x.startswith("STATE_")])))
-# End of compatibility fixes
 import ui
 import scriptHandler
 from NVDAObjects.IAccessible import IAccessible
@@ -62,7 +53,7 @@ class AppModule(appModuleHandler.AppModule):
 		if fg.APIClass == UIA:
 			sb = filter(lambda o: o.UIAElement.currentClassName == "StatusBar", fg.children)
 			try:
-				return sb[0]
+				return next(sb)
 			except:
 				pass
 		return None
@@ -84,67 +75,44 @@ class AppModule(appModuleHandler.AppModule):
 			pass
 
 	def chooseNVDAObjectOverlayClasses(self, obj, clsList):
-		if obj.APIClass == IAccessible:
-			if obj.role == controlTypes.Role.TABLECOLUMNHEADER:
-				if obj.location[2] == 0:
-					# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
-					# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
-					obj.description = _("(hidden)")
-				clsList.insert(0, EnhancedHeader)
-			if obj.role == controlTypes.Role.EDITABLETEXT and obj.parent.role == controlTypes.Role.COMBOBOX and obj.previous.role == controlTypes.Role.LIST:
-				obj.TextInfo  = obj.makeTextInfo(textInfos.POSITION_ALL)
-				clsList.insert(0, TextInComboBox)
-			if obj.role == controlTypes.Role.COMBOBOX and obj.childCount == 2:
-					clsList.insert(0, ComboBox)
-			if obj.role == controlTypes.Role.TABLECELL:
-				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
-				clsList.insert(0, TableCell)
-			try:
-				if obj.role == controlTypes.Role.PANE and obj.IAccessibleRole == controlTypes.Role.MENUBAR and obj.parent.IAccessibleRole == 1050:
-					clsList.insert(0, preferencesPane)
-			except AttributeError:
-				pass
-			if obj.role == controlTypes.Role.TOOLBAR and not obj.isFocusable:
-				clsList.insert(0, UnfocusableToolBar)
-		if obj.APIClass == UIA:
-			if obj.role == controlTypes.Role.HEADER:
-				if obj.location[2] == 0:
-					# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
-					# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
-					obj.description = _("(hidden)")
-				clsList.insert(0, UIAEnhancedHeader)
-			if obj.UIAElement.currentClassName == "SearchLineEdit" and not obj.TextInfo:
-				obj.TextInfo = obj.makeTextInfo(textInfos.POSITION_ALL)
-				clsList.insert(0, UIATextInComboBox)
-			if obj.UIAElement.currentClassName == "SearchBox2":
-				clsList.insert(0, UIAComboBox)
-			if obj.role == controlTypes.Role.DATAITEM:
-				obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
-				clsList.insert(0, UIATableCell)
-			try:
-				if obj.UIAElement.currentClassName == "Browser" and obj.parent.parent.UIAElement.currentClassName == "Preferences":
-					clsList.insert(0, UIApreferencesPane)
-			except AttributeError:
-				pass
-			try:
-				if self.productVersion and re.match("4\.", self.productVersion) and obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
-					clsList.insert(0, UIAConfigWidget)
-			except AttributeError:
-				pass
-			if obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
-				clsList.insert(0, UIAUnfocusableToolBar)
-			if obj.UIAElement.currentClassName == "BookInfo":
-				clsList.insert(0, BookInfoDialog)
-			try:
-				if obj.parent.parent.parent.UIAElement.currentClassName == "BookInfo":
-					if obj.UIAElement.currentClassName == "Details":
-						clsList.insert(0, BookInfoDetails)
-					else:
-						clsList.insert(0, BookInfoWindowItem)
-				elif obj.UIAElement.currentClassName == "Cover":
-					clsList.insert(0, BookInfoCover)
-			except AttributeError:
-				pass
+		if obj.role == controlTypes.Role.HEADER:
+			if obj.location[2] == 0:
+				# Width = 0 means that the object is not visible, although if it is displayed in the objects navigator
+				# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
+				obj.description = _("(hidden)")
+			clsList.insert(0, UIAEnhancedHeader)
+		if obj.UIAElement.currentClassName == "SearchLineEdit" and not obj.TextInfo:
+			obj.TextInfo = obj.makeTextInfo(textInfos.POSITION_ALL)
+			clsList.insert(0, UIATextInComboBox)
+		if obj.UIAElement.currentClassName == "SearchBox2":
+			clsList.insert(0, UIAComboBox)
+		if obj.role == controlTypes.Role.DATAITEM:
+			obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
+			clsList.insert(0, UIATableCell)
+		try:
+			if obj.UIAElement.currentClassName == "Browser" and obj.parent.parent.UIAElement.currentClassName == "Preferences":
+				clsList.insert(0, UIApreferencesPane)
+		except AttributeError:
+			pass
+		try:
+			if self.productVersion and re.match("4\.", self.productVersion) and obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
+				clsList.insert(0, UIAConfigWidget)
+		except AttributeError:
+			pass
+		if obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
+			clsList.insert(0, UIAUnfocusableToolBar)
+		if obj.UIAElement.currentClassName == "BookInfo":
+			clsList.insert(0, BookInfoDialog)
+		try:
+			if obj.parent.parent.parent.UIAElement.currentClassName == "BookInfo":
+				if obj.UIAElement.currentClassName == "Details":
+					clsList.insert(0, BookInfoDetails)
+				else:
+					clsList.insert(0, BookInfoWindowItem)
+			elif obj.UIAElement.currentClassName == "Cover":
+				clsList.insert(0, BookInfoCover)
+		except AttributeError:
+			pass
 
 	def event_gainFocus(self, obj, nextHandler):
 		# Removes the HTML tags that appear in the name and description of some objects
@@ -179,7 +147,7 @@ class AppModule(appModuleHandler.AppModule):
 		# get calibre version
 		if not self.productVersion and not self.productName:
 			try:
-				statusBar = filter(lambda o: o.role == controlTypes.Role.STATUSBAR, obj.children)[0]
+				statusBar = next(filter(lambda o: o.role == controlTypes.Role.STATUSBAR, obj.children))
 				statusBarText = " ".join([obj.name for obj in statusBar.children])
 				productInfo = re.search(r"calibre \d\.\d+\.\d+", statusBarText)
 				if productInfo:
@@ -241,9 +209,9 @@ class AppModule(appModuleHandler.AppModule):
 		ui.message(_("Tools bar"))
 		fg = api.getForegroundObject()
 		try:
-			toolBar = filter(lambda o: o.role == controlTypes.Role.TOOLBAR, fg.children)[0]
+			toolBar = next(filter(lambda o: o.role == controlTypes.Role.TOOLBAR, fg.children))
 			toolBar.show()
-		except:
+		except StopIteration:
 			# TRANSLATORS: Message shown when the object is not found
 			ui.message(_("Not found"))
 			return
@@ -258,8 +226,8 @@ class AppModule(appModuleHandler.AppModule):
 	def _getBooksCount(self):
 		fg = api.getForegroundObject()
 		try:
-			statusBar = filter(lambda o: o.role == controlTypes.Role.STATUSBAR, fg.children)[0]
-		except IndexError:
+			statusBar = next(filter(lambda o: o.role == controlTypes.Role.STATUSBAR, fg.children))
+		except StopIteration:
 			raise Exception("Filter has failed; statusBar not found")
 		obj = statusBar.firstChild
 		while obj:
