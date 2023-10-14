@@ -1,1 +1,2 @@
-* Fixed a bug in the library search widget in versions of Calibre 6.17 and above.
+* Removed old versions compatibility.
+* Changed version numbering scheme.
