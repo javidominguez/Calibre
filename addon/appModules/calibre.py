@@ -18,7 +18,7 @@ import textInfos
 from tones import beep
 from os import startfile
 import winUser
-from speech import speakObject, pauseSpeech
+from speech import speech, speakObject, pauseSpeech
 import re
 import config
 import wx
@@ -41,6 +41,8 @@ class AppModule(appModuleHandler.AppModule):
 
 	# TRANSLATORS: category for Calibre input gestures
 	scriptCategory = _("Calibre")
+
+	speechOnDemand = {"speakOnDemand": True} if hasattr(speech.SpeechMode, "onDemand") else {}
 
 	def _get_productName(self):
 		return "Calibre"
@@ -218,6 +220,7 @@ class AppModule(appModuleHandler.AppModule):
 	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_navigateToolBar.__doc__ = _("Bring focus to toolbar")
 
+	@scriptHandler.script(**speechOnDemand)
 	def script_booksCount(self, gesture):
 		ui.message(self._getBooksCount())
 	# TRANSLATORS: message shown in Input gestures dialog for this script
