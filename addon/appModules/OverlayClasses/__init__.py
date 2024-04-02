@@ -337,11 +337,8 @@ class UIAUnfocusableToolBar(UIA):
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
 				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
 				scriptHandler.executeScript(self.script_exit, KeyboardInputGesture.fromName("escape"))
-<<<<<<< HEAD
-=======
 				sleep(0.1)
 				KeyboardInputGesture.fromName("downArrow").send()
->>>>>>> dev
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
 				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.role._roleLabels[obj.role]))
