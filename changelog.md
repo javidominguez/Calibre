@@ -1,3 +1,1 @@
-* Removed old versions compatibility.
-* Minimum NVDA version supported 2024.1
-* Changed version numbering scheme.
+Tested compatibility in NVDA 2025.1 and updated manifest.
