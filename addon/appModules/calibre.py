@@ -83,35 +83,35 @@ class AppModule(appModuleHandler.AppModule):
 				# TRANSLATORS: Message shown when a table header is in navigator objects but it is not visible in the screen
 				obj.description = _("(hidden)")
 			clsList.insert(0, UIAEnhancedHeader)
-		if obj.UIAElement.currentClassName == "SearchLineEdit" and not obj.TextInfo:
+		if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "SearchLineEdit" and not obj.TextInfo:
 			obj.TextInfo = obj.makeTextInfo(textInfos.POSITION_ALL)
 			clsList.insert(0, UIATextInComboBox)
-		if obj.UIAElement.currentClassName == "SearchBox2":
+		if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "SearchBox2":
 			clsList.insert(0, UIAComboBox)
 		if obj.role == controlTypes.Role.DATAITEM:
 			obj.reportHeaders = config.conf['documentFormatting']['reportTableHeaders']
 			clsList.insert(0, UIATableCell)
 		try:
-			if obj.UIAElement.currentClassName == "Browser" and obj.parent.parent.UIAElement.currentClassName == "Preferences":
+			if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "Browser" and obj.parent.parent.UIAElement.currentClassName == "Preferences":
 				clsList.insert(0, UIApreferencesPane)
 		except AttributeError:
 			pass
 		try:
-			if self.productVersion and re.match("4\.", self.productVersion) and obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
+			if self.productVersion and re.match("4\.", self.productVersion) and isinstance(obj, UIA) and obj.UIAElement.currentClassName == "QScrollArea" and obj.simpleParent.UIAElement.currentClassName == "Preferences":
 				clsList.insert(0, UIAConfigWidget)
 		except AttributeError:
 			pass
-		if obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
+		if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "ToolBar" and not obj.isFocusable:
 			clsList.insert(0, UIAUnfocusableToolBar)
-		if obj.UIAElement.currentClassName == "BookInfo":
+		if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "BookInfo":
 			clsList.insert(0, BookInfoDialog)
 		try:
-			if obj.parent.parent.parent.UIAElement.currentClassName == "BookInfo":
-				if obj.UIAElement.currentClassName == "Details":
+			if isinstance(obj.parent.parent.parent, UIA) and obj.parent.parent.parent.UIAElement.currentClassName == "BookInfo":
+				if isinstance(obj, UIA) and obj.UIAElement.currentClassName == "Details":
 					clsList.insert(0, BookInfoDetails)
 				else:
 					clsList.insert(0, BookInfoWindowItem)
-			elif obj.UIAElement.currentClassName == "Cover":
+			elif isinstance(obj, UIA) and obj.UIAElement.currentClassName == "Cover":
 				clsList.insert(0, BookInfoCover)
 		except AttributeError:
 			pass

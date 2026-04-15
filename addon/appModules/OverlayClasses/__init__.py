@@ -133,9 +133,8 @@ class UIATableCell(UIItem):
 			obj = obj.next
 		api.setNavigatorObject(obj)
 		winUser.setCursorPos(self.location[0]+2, obj.location[1]+2)
-		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
-		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
-		sleep(0.1)
+		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,0,0)
+		winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,0,0)
 		KeyboardInputGesture.fromName("downArrow").send()
 	# TRANSLATORS: message shown in Input gestures dialog for this script
 	script_headerOptions.__doc__ = _("open the context menu for settings of the current column")
@@ -319,9 +318,9 @@ class UIAUnfocusableToolBar(UIA):
 				winUser.setCursorPos(x, y)
 				if api.getDesktopObject().objectFromPoint(x,y) == obj:
 					if winUser.getKeyState(winUser.VK_LBUTTON)&32768:
-						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
-					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,None,None)
-					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,None,None)
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,0,0)
+					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,0,0)
+					winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,0,0,0)
 			else:
 				scriptHandler.executeScript(self.script_menu, None)
 		else:
@@ -334,11 +333,9 @@ class UIAUnfocusableToolBar(UIA):
 			pauseSpeech(True)
 			x, y = winUser.getCursorPos()
 			if x >= obj.location[0]:
-				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,None,None)
-				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,None,None)
+				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTDOWN,0,0,0,0)
+				winUser.mouse_event(winUser.MOUSEEVENTF_RIGHTUP,0,0,0,0)
 				scriptHandler.executeScript(self.script_exit, KeyboardInputGesture.fromName("escape"))
-				sleep(0.1)
-				KeyboardInputGesture.fromName("downArrow").send()
 			else:
 				# TRANSLATORS: Message when it can't click in a item of the toolbar
 				ui.message(_("Can't click in %s, try to maximize the window") % (obj.name if obj.name else controlTypes.role._roleLabels[obj.role]))
@@ -404,8 +401,8 @@ class BookInfoWindowItem(UIA):
 				if obj.UIAElement.currentClassName == "QLabel":
 					winUser.setCursorPos(obj.location.left+2, obj.location.top+2)
 					if obj == api.getDesktopObject().objectFromPoint(obj.location.left+2, obj.location.top+2):
-						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,None,None)
-						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,1,None,None)
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTDOWN,0,1,0,0)
+						winUser.mouse_event(winUser.MOUSEEVENTF_LEFTUP,0,1,0,0)
 					else:
 						raise RuntimeError("Unable to click in settings label")
 					break
