@@ -29,3 +29,4 @@ Se pueden personalizar los atajos en las preferencias de NVDA > Gestos de entrad
 
 [4]: https://github.com/javidominguez/Calibre/blob/master/COPYING.txt
 
+<!-- Prueba del actualizador de recursos -->
