@@ -30,7 +30,7 @@ on:
 # ══════════════════════════════════════════════════════════════
 env:
   # Nombre del complemento (debe coincidir con manifest.ini)
-  NOMBRE_COMPLEMENTO: "miComplemento"
+  NOMBRE_COMPLEMENTO: "Calibre"
   # Tag de la release de recursos (debe coincidir con el parámetro
   # tag_release del ActualizadorRecursos en tu código Python)
   TAG_RELEASE: "recursos-latest"

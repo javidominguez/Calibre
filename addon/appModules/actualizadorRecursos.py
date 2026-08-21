@@ -24,7 +24,7 @@ from urllib.error import URLError, HTTPError
 try:
 	from scons_idiomas import construirEtiquetaRecursos
 except ImportError:
-	def construirEtiquetaRecursos(addon_version=None, tag_release=None):
+	def construirEtiquetaRecursos(addon_version=None, tag_release=None, dir_base=None):
 		if tag_release:
 			return tag_release
 		if not addon_version:
@@ -724,14 +724,17 @@ class ActualizadorRecursos:
 		return ""
 	
 	def _obtenerVersionAddonInstalada(self) -> str:
-		"""Obtiene la versión del addon instalado desde el módulo versionInfo de NVDA."""
+		"""Obtiene la versión del addon instalado usando addonHandler de NVDA."""
 		try:
-			import versionInfo
-			version = getattr(versionInfo, "version", None)
-			if version:
-				return str(version)
-		except Exception:
-			pass
+			import addonHandler
+			# Buscamos en todos los addons instalados
+			for addon in addonHandler.getAvailableAddons():
+				# Comparamos la ruta del addon con la ruta de nuestro complemento
+				if os.path.normpath(addon.path) == os.path.normpath(self._ruta_complemento):
+					return str(addon.version)
+		except Exception as e:
+			log.warning(f"Error obteniendo versión del addon con addonHandler: {e}")
+		
 		return ""
 
 	def _calcularHashCombinado(self) -> str:
