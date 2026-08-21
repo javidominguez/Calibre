@@ -6,6 +6,7 @@
 #Copyright (C) 2018-2020 Javi Dominguez <fjavids@gmail.com>
 
 from .OverlayClasses import *
+from .actualizadorRecursos import ActualizadorRecursos
 import appModuleHandler
 import addonHandler
 import api
@@ -68,8 +69,10 @@ class AppModule(appModuleHandler.AppModule):
 		self.lastColumnHeader = ""
 		if hasattr(settingsDialogs, 'SettingsPanel'):
 			NVDASettingsDialog.categoryClasses.append(calibrePanel)
+		self._actualizador = ActualizadorRecursos("javidominguez", "calibre", rama="master", intervalo_horas=12)
 
 	def terminate(self):
+		self._actualizador.detener()
 		try:
 			if hasattr(settingsDialogs, 'SettingsPanel'):
 				NVDASettingsDialog.categoryClasses.remove(calibrePanel)
