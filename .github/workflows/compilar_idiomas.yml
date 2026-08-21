@@ -30,7 +30,7 @@ on:
 # ══════════════════════════════════════════════════════════════
 env:
   # Nombre del complemento (debe coincidir con manifest.ini)
-  NOMBRE_COMPLEMENTO: "Calibre"
+  NOMBRE_COMPLEMENTO: "calibre"
   # Tag de la release de recursos (debe coincidir con el parámetro
   # tag_release del ActualizadorRecursos en tu código Python)
   TAG_RELEASE: "recursos-latest"
@@ -274,9 +274,12 @@ jobs:
               addon_info = getattr(buildVars, 'addon_info', {})
               addon_version = addon_info.get('addon_version', '') if hasattr(addon_info, 'get') else ''
               if addon_version:
-                  coincidencia = re.match(r'(\d+)', str(addon_version).strip())
-                  if coincidencia:
-                      tag = f"recursos_{coincidencia.group(1)}"
+                  # Capturamos hasta dos grupos de números separados por punto (ej: 2026.2.0 -> 2026.2)
+                  partes = re.findall(r"\d+", str(addon_version).strip())
+                  if len(partes) >= 2:
+                      tag = f"recursos_{partes[0]}.{partes[1]}"
+                  elif partes:
+                      tag = f"recursos_{partes[0]}"
 
           print(f"Etiqueta de recursos: {tag}")
           with open(os.environ['GITHUB_OUTPUT'], 'a') as gh:
